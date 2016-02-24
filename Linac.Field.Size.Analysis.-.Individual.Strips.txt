@@ -129,7 +129,7 @@ macro "Linac_Field_Size_Analysis"{
      //     Constants used
 	roiSize = 5;
 	ProfileWidthmm = 5;				//	Sets the width of the measured profile in mm - aim is to average over a wider profile to avoid provlems with any noise/dust/dead pixels in image
-	LineExtensionmm = 50;				//	extension of line beyond marked points in mm which must go beyond field edge
+	LineExtensionmm = 100;				//	extension of line beyond marked points in mm which must go beyond field edge
 
      //     Tolerance Levels
 	FieldSizeTol = 2;					//	tolerance for field size is +/- 2mm
