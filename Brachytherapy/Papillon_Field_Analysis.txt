@@ -79,6 +79,16 @@ macro "Papillon_Field_Analysis"{
 	ImageWidthPx = getWidth();				//	returns image width in pixels
 	ImageHeightPx = getHeight();
 
+// added to automate rotation if scanner settings not correct.
+	
+	// 	to check if image has portrait orientation as required
+	if (ImageWidthPx > ImageHeightPx) {
+		//waitForUser("Rotate?", "Image will rotate 90 degrees clockwise when you click OK");	//let user know about rotation
+		run("Rotate 90 Degrees Left");
+		ImageWidthPx = getWidth();			//returns new image width/height in pixels after rotation for calcs
+		ImageHeightPx = getHeight();
+	}
+
 	ImageWidthA4mm = 215.9;				//	known regular scanner image width in mm (from scanner settings)
 	ImageHeightA4mm = 297.2;
 
