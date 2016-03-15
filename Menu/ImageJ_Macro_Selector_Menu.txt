@@ -1,0 +1,147 @@
+// Want to create a menu system which can be used to launch the ImageJ macros in use by RSCH.
+//
+// 1 - Select Machine type (e.g. linac/papillon)
+// 2 - Select macro from a list (shown based on machine type selected
+// 3 - Selected macro will launch
+// *Try to do with radio buttons, if not then dropdown choices.
+
+
+
+	// Set last updated date and Version - ****further comments should be added at the end of the file if necessary
+
+update_date = "15 March 2016 by MB"
+version = "V1.0"
+
+
+//************************ All Macros should be listed here assigned to unique parameters***************************
+//************************ The full file path should be specified and slashes should be doubled '\\' ***************
+//************************ The line should end with a semi colon ';' ***********************************************
+//************************ If adding a completely new macro, also add it to the relevent list (array) below ********
+
+
+	// Linac Macros
+macro_linac_epid_asym = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Asymmetric V1.6.txt";
+macro_linac_epid_10x10_guildford = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Congruence V1.9.txt";
+macro_linac_epid_10x10_redhill = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Redhill - Congruence 10x10 V1.0.txt";
+macro_linac_gaf_4x4_10x10 = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Linac Field Size Analysis (4x4cm & 10x10cm) V1.6.txt";
+macro_linac_gaf_30x30_guildford = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Linac Field Size Analysis - Strips V1.0.txt";
+macro_linac_gaf_30x30_redhill = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Linac_Field_Size_Analysis-Individual_Strips.txt";
+
+	// Gulmay Macros
+macro_gulmay_gaf_fs_unif = "G:\\Shared\\Oncology\\Physics\\RTPhysics\\EBRT Dosimetry\\Xstrahl 2013 onwards\\Field Analysis QC\\ImageJ Macros\\Gulmay Field Analysis V1.3.txt";
+
+	// Papillon Macros
+macro_papillon_gaf_fs_unif = "G:\\Shared\\Oncology\\Physics\\RTPhysics\\Brachy\\Papillon\\Papillon QA\\Field Analysis\\Papillon Field Analysis Macro\\Current version\\Papillon_Field_Analysis.txt";
+
+	// Other Macros
+macro_other_gaf_offaxis = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Linac Field Size Analysis (4x4cm & 10x10cm) Off Axis V1.0.txt";
+macro_other_gaf_electron = "G:\\Shared\\Oncology\\Physics\\RTPhysics\\EBRT Dosimetry\\Electron Applicator Checks\\Electon Applicator Checks V1.0.txt"
+
+
+	// arrays containing lists of machines and tests
+
+list_machines = newArray("Linac", "Gulmay", "Papillon", "Other");
+list_tests_linac = newArray("EPID 10x10 (Guildford)", "EPID 10x10 (Redhill)", "EPID Asym", "Gaf 4x4 & 10x10", "Gaf 30x30 Strips (Guildford)", "Gaf 30x30 Strips (Redhill)");
+list_tests_gulmay = newArray("Gulmay Field Size and Uniformity");
+list_tests_papillon = newArray("Papillon Field Size and Uniformity");
+list_tests_other = newArray("Off Axis Field Size", "Electron Field Size");
+list_linacs = newArray("LA1","LA2","LA3","LA4","LA5","LA6","Red-A","Red-B");
+
+
+//******************************************************************************************************************
+
+	// Set a message to display in the title of dialog boxes and ImageJ status bar
+msg_title = "ImageJ Macro Selector ("+version+")";
+showStatus(msg_title);
+
+	// Dialog to select machine type
+Dialog.create(msg_title);
+Dialog.addRadioButtonGroup("Select Machine", list_machines,lengthOf(list_machines),1,list_machines[0]);
+Dialog.addMessage("Last Updated: "+update_date);
+Dialog.show();
+
+	// set the parameter to indicate the selected machine
+selected_machine = Dialog.getRadioButton();
+
+	// set 'list_display' and 'msg_display' dependant on the machine selected
+if (selected_machine == "Linac") {
+	list_display = list_tests_linac;
+	msg_display = selected_machine+" Tests";
+} else if (selected_machine == "Gulmay") {
+	list_display = list_tests_gulmay;
+	msg_display = selected_machine+" Tests";
+} else if (selected_machine == "Papillon") {
+	list_display = list_tests_papillon;
+	msg_display = selected_machine+" Tests";
+} else if (selected_machine == "Other") {
+	list_display = list_tests_other;
+	msg_display = selected_machine+" Tests";
+} else {
+	exit("Error - invalid machine selected");
+}
+
+	// Dialog to select test to run
+	// If linac then gives option to select linac name.
+if (lengthOf(list_display) > 0) {
+	Dialog.create(msg_title);
+	if (selected_machine == "Linac") {
+		Dialog.addChoice("Select Linac", list_linacs,list_linacs[0]);
+	}
+	Dialog.addRadioButtonGroup(msg_display, list_display,lengthOf(list_display),1,list_display[0]);
+	Dialog.show();
+} else {
+	exit("list has a zero length, therfore no test available for this machine");
+}
+	
+if (selected_machine == "Linac") {
+	selected_linac = Dialog.getChoice();
+} else {
+	selected_linac = "None";
+}
+
+selected_test = Dialog.getRadioButton();
+
+// *****************************************************************************
+
+	// ** This part references the macro to the selected test
+	// ** and will need updating if a new macro is added, or renamed.
+
+if (selected_test == "EPID 10x10 (Guildford)") {
+	selected_macro = macro_linac_epid_10x10_guildford;
+} else if (selected_test == "EPID 10x10 (Redhill)") {
+	selected_macro = macro_linac_epid_10x10_redhill;
+} else if (selected_test == "EPID Asym") {
+	selected_macro = macro_linac_epid_asym;
+} else if (selected_test == "Gaf 4x4 & 10x10") {
+	selected_macro = macro_linac_gaf_4x4_10x10;
+} else if (selected_test == "Gaf 30x30 Strips (Guildford)") {
+	selected_macro = macro_linac_gaf_30x30_guildford;
+} else if (selected_test == "Gaf 30x30 Strips (Redhill)") {
+	selected_macro = macro_linac_gaf_30x30_redhill;
+} else if (selected_test == "Gulmay Field Size and Uniformity") {
+	selected_macro = macro_gulmay_gaf_fs_unif;
+} else if (selected_test == "Papillon Field Size and Uniformity") {
+	selected_macro = macro_papillon_gaf_fs_unif;
+} else if (selected_test == "Off Axis Field Size") {
+	selected_macro = macro_other_gaf_offaxis;
+} else if (selected_test == "Electron Field Size") {
+	selected_macro = macro_other_gaf_electron;
+} else {
+	exit("Error - invalid test selected");
+}
+
+// *****************************************************************************
+
+
+// This runs the selected macro and passes the 'selected_linac' variable.
+runMacro(selected_macro, selected_linac);
+
+
+
+// *********** UPDATE LOG ***********
+//
+// 09Nov15 Started working on a menu to launch current macros. MB
+// 10Nov15 Working version for all 10 current macros. MB
+// 18Nov15 Papillon macro updated with new standard figures following FF replacement. MB
+// 19Jan16 Papillon macro updated to display profile plots. MB
+// 
