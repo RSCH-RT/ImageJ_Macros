@@ -28,14 +28,14 @@ macro_linac_gaf_30x30_guildford = "G:\\Shared\\Oncology\\Physics\\Linac Field An
 macro_linac_gaf_30x30_redhill = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Linac_Field_Size_Analysis-Individual_Strips.txt";
 
 	// Gulmay Macros
-macro_gulmay_gaf_fs_unif = "G:\\Shared\\Oncology\\Physics\\RTPhysics\\EBRT Dosimetry\\Xstrahl 2013 onwards\\Field Analysis QC\\ImageJ Macros\\Gulmay_Field_Analysis_.txt";
+macro_gulmay_gaf_fs_unif = "G:\\Shared\\Oncology\\Physics\\RTPhysics\\EBRT Dosimetry\\Xstrahl 2013 onwards\\Field Analysis QC\\ImageJ Macros\\Gulmay_Field_Analysis.txt";
 
 	// Papillon Macros
 macro_papillon_gaf_fs_unif = "G:\\Shared\\Oncology\\Physics\\RTPhysics\\Brachy\\Papillon\\Papillon QA\\Field Analysis\\Papillon Field Analysis Macro\\Current version\\Papillon_Field_Analysis.txt";
 
 	// Other Macros
-macro_other_gaf_offaxis = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Linac_Field_Size_Analysis_4x4cm_10x10cm_Off_Axis.txt";
-macro_other_gaf_electron = "G:\\Shared\\Oncology\\Physics\\RTPhysics\\EBRT Dosimetry\\Electron Applicator Checks\\Electon_Applicator_Checks.txt"
+macro_other_gaf_offaxis = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Development\\Linac_Field_Size_Analysis_4x4cm_10x10cm_Off_Axis.txt";
+macro_other_gaf_electron = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Development\\Electron_Applicator_Checks.txt"
 
 
 	// arrays containing lists of machines and tests
