@@ -26,8 +26,13 @@ macro "Papillon_Field_Analysis"{
 
 // + + + + + + + + + + This whole macro is enclosed in a 'do... while' loop to allow analysis to be restarted if box at end is ticked i.e. if RepeatAnalysis = true + + + + + + + + + + + + +
 
-// Last updated 18 Nov 15 after rplacement of flattening filter. New threshold ratios added as well as uniformity and field size std figs
+// Last updated 18 Nov 15 after replacement of flattening filter. New threshold ratios added as well as uniformity and field size std figs
+// Updated March 2016 to include display of version numbers and allow management through GitHub.
 
+//// *** Version number and date last updated. To be used within the code *** /////
+
+version = "1.0";
+update_date = "23 March 2016 by MB";
 
 ///////	0	//////////	Setup ImageJ as required & get image info	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	do {
@@ -36,7 +41,10 @@ macro "Papillon_Field_Analysis"{
 
 	Dialog.create("Macro Opened");
 	Dialog.addMessage("---- Papillon Field Analysis ----");
+	Dialog.addMessage("Version: " + version);
+	Dialog.addMessage("Last Updated: " + update_date);
 	if(nImages==0) {
+		Dialog.addMessage("");
 		Dialog.addMessage("You will be prompted to open the required image after clicking OK");
 	}
 	Dialog.addMessage("Click OK to start");
