@@ -16,6 +16,7 @@
 //	At Coll 90, North (G) = X2, South (T) = X1, East (B) = Y1, West (A) = Y2
 //	N,S,E,W to show X and Y correctly
 //	dEastX and dWestX swapped around 23/04/14 due to Y1 & Y2 being incorrectly orientated in results. Line 161/162
+//	Version numbering changed March 2016.
 // ------------------------------------------------------------------------------------------------------
 
 // ---------------------------- global variables ------------------------------------------------
@@ -45,6 +46,10 @@ var strDateImage;
 // ------------------------------------------------------------------------------------------------------
 
 macro "Find Points" {
+
+version = "1.0";
+update_date = "23 March 2016 by MB";
+
 // *************** STEP 1 ***************
 // Show a dialog to user so that they know the macro is running, initialise images
 
@@ -62,6 +67,9 @@ macro "Find Points" {
 
 	Dialog.create("Macro Opened");
 	Dialog.addMessage("EPID QC Image Analysis");
+	Dialog.addMessage("Version: " + version);
+	Dialog.addMessage("Last Updated: " + update_date);
+	Dialog.addMessage("");
 	Dialog.addMessage("This is an automated process as folows:");
 	Dialog.addMessage(" - the macro finds the 8 ball bearings and the centre marker of the phantom.");
 	Dialog.addMessage(" - these can be adjusted manually when prompted.");

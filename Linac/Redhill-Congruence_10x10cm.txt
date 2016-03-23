@@ -49,6 +49,10 @@ var Pt0Y;
 // ------------------------------------------------------------------------------------------------------
 
 macro "Find Points" {
+
+version = "1.0";
+update_date = "23 March 2016 by MB";
+
 // *************** STEP 1 ***************
 // Show a dialog to user so that they know the macro is running, initialise images
 
@@ -66,6 +70,9 @@ macro "Find Points" {
 
 	Dialog.create("Macro Opened");
 	Dialog.addMessage("EPID QC Image Analysis");
+	Dialog.addMessage("Version: " + version);
+	Dialog.addMessage("Last Updated: " + update_date);
+	Dialog.addMessage("");
 	Dialog.addMessage("This is an automated process as folows:");
 	Dialog.addMessage(" - the macro finds the 4 ball bearings.");
 	Dialog.addMessage(" - these can be adjusted manually when prompted.");

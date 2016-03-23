@@ -29,6 +29,9 @@ var myLen;
 // -------------------------------------------------------------------------------------------------------------------------------------------
 macro "AssymAnalysis" {
 
+version = "1.0";
+update_date = "23 March 2016 by MB";
+
 	requires("1.47p");
 	myLinac = getArgument() ;
 	if(myLinac == "") {
@@ -45,6 +48,9 @@ macro "AssymAnalysis" {
 
 	Dialog.create("Macro Opened");
 	Dialog.addMessage("EPID QC Asymmetric Image Analysis");
+	Dialog.addMessage("Version: " + version);
+	Dialog.addMessage("Last Updated: " + update_date);
+	Dialog.addMessage("");
 	Dialog.addMessage("This is an automated process as folows:");
 	Dialog.addMessage("You will be promted to select the folder containg the 4 asymmetric images.");	
 	Dialog.addMessage("Results appear in the Log window");
