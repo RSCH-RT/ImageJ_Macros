@@ -24,6 +24,9 @@ var ptY2
 
 macro "Electron_Insert_Checks"{
 
+version = "0.1";
+update_date = "23 March 2016 by MB";
+
 // + + + + + + + + + + + + + This whole macro is enclosed in a 'do... while' loop to allow analysis to be restarted if box at end is ticked i.e. if RepeatAnalysis = true + + + + + + + + + + + + + + + +
 
 	myLinac = getArgument() ;  // optional variable passed by MS Access
@@ -39,7 +42,10 @@ macro "Electron_Insert_Checks"{
 
 	Dialog.create("Macro Opened");
 	Dialog.addMessage("---- Electron Insert Checks ----");
+	Dialog.addMessage("Version: " + version);
+	Dialog.addMessage("Last Updated: " + update_date);
 	if(nImages==0) {
+		Dialog.addMessage("");
 		Dialog.addMessage("You will be prompted to open the required image after clicking OK");
 	}
 	Dialog.addMessage("Click OK to start");
