@@ -33,6 +33,8 @@ macro "Linac_Field_Size_Analysis"{
 
 // + + + + + + + + + + + + + This whole macro is enclosed in a 'do... while' loop to allow analysis to be restarted if box at end is ticked i.e. if RepeatAnalysis = true + + + + + + + + + + + + + + + +
 
+version = "0.1";
+update_date = "23 March 2016 by MB";
 
 ///////	0	//////////	Setup ImageJ as required & get image info	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	do {
@@ -42,7 +44,10 @@ macro "Linac_Field_Size_Analysis"{
 
 	Dialog.create("Macro Opened");
 	Dialog.addMessage("---- Linac Field Size Analysis (Off-Axis) ----");
+	Dialog.addMessage("Version: " + version);
+	Dialog.addMessage("Last Updated: " + update_date);
 	if(nImages==0) {
+		Dialog.addMessage("");
 		Dialog.addMessage("You will be prompted to open the required image after clicking OK");
 	}
 	Dialog.addMessage("Click OK to start");
