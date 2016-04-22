@@ -164,7 +164,7 @@ update_date = "23 March 2016 by MB";
 	FieldSizeVertChoices = newArray("4","6","8","6","10","8","8","10","15","20");
 	FieldShapeChoices = newArray("Circle","Circle","Circle","Rectangle","Rectangle","Rectangle","Rectangle","Rectangle","Rectangle","Rectangle");
 	
-	ScannerChoices = newArray("V750 Pro","11000XL Pro");
+	ScannerChoices = newArray("11000XL Pro","V750 Pro");
 
 	DayChoices = newArray(31);			//	length of array
 		for(i=0; i<DayChoices.length; i++)	//	set incremental values in array
