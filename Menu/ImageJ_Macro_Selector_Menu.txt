@@ -114,7 +114,7 @@ if (selected_test == "EPID 10x10 (Guildford)") {
 	selected_macro = macro_linac_epid_10x10_redhill;
 } else if (selected_test == "EPID Asym") {
 	selected_macro = macro_linac_epid_asym;
-} else if (selected_test == "Gaf 4x4 & 10x10") {
+} else if (selected_test == "Gaf 2x2, 4x4 & 10x10") {
 	selected_macro = macro_linac_gaf_2x2_4x4_10x10;
 } else if (selected_test == "Gaf 30x30 Strips (Guildford)") {
 	selected_macro = macro_linac_gaf_30x30_guildford;
