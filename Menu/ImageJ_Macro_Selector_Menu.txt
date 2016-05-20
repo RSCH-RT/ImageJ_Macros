@@ -7,10 +7,12 @@
 
 
 
-	// Set last updated date and Version - ****further comments should be added at the end of the file if necessary
+	// Set last updated date and Version - ****further comments should be added below (previous comment sat end of file)
 
-update_date = "15 March 2016 by MB"
-version = "V1.0"
+update_date = "20 May 2016 by MB"
+version = "V1.1"
+
+//V1.1: Changed reference for Gaf Linac macro to refer to 2x2 macro.
 
 
 //************************ All Macros should be listed here assigned to unique parameters***************************
@@ -23,7 +25,7 @@ version = "V1.0"
 macro_linac_epid_asym = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Asymmetric.txt";
 macro_linac_epid_10x10_guildford = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Guildford-Congruence_10x10cm.txt";
 macro_linac_epid_10x10_redhill = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Redhill-Congruence_10x10cm.txt";
-macro_linac_gaf_4x4_10x10 = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Linac_Field_Size_Analysis_4x4cm_10x10cm.txt";
+macro_linac_gaf_2x2_4x4_10x10 = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Linac_Field_Size_Analysis_2x2cm_4x4cm_10x10cm.txt";
 macro_linac_gaf_30x30_guildford = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Linac_Field_Size_Analysis-Strips.txt";
 macro_linac_gaf_30x30_redhill = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\ImageJ Macros\\Linac_Field_Size_Analysis-Individual_Strips.txt";
 
@@ -41,7 +43,7 @@ macro_other_gaf_electron = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\
 	// arrays containing lists of machines and tests
 
 list_machines = newArray("Linac", "Gulmay", "Papillon", "Other");
-list_tests_linac = newArray("EPID 10x10 (Guildford)", "EPID 10x10 (Redhill)", "EPID Asym", "Gaf 4x4 & 10x10", "Gaf 30x30 Strips (Guildford)", "Gaf 30x30 Strips (Redhill)");
+list_tests_linac = newArray("EPID 10x10 (Guildford)", "EPID 10x10 (Redhill)", "EPID Asym", "Gaf 2x2, 4x4 & 10x10", "Gaf 30x30 Strips (Guildford)", "Gaf 30x30 Strips (Redhill)");
 list_tests_gulmay = newArray("Gulmay Field Size and Uniformity");
 list_tests_papillon = newArray("Papillon Field Size and Uniformity");
 list_tests_other = newArray("Off Axis Field Size", "Electron Field Size");
@@ -113,7 +115,7 @@ if (selected_test == "EPID 10x10 (Guildford)") {
 } else if (selected_test == "EPID Asym") {
 	selected_macro = macro_linac_epid_asym;
 } else if (selected_test == "Gaf 4x4 & 10x10") {
-	selected_macro = macro_linac_gaf_4x4_10x10;
+	selected_macro = macro_linac_gaf_2x2_4x4_10x10;
 } else if (selected_test == "Gaf 30x30 Strips (Guildford)") {
 	selected_macro = macro_linac_gaf_30x30_guildford;
 } else if (selected_test == "Gaf 30x30 Strips (Redhill)") {
