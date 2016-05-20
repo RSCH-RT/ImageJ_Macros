@@ -31,8 +31,10 @@ var ext2y
 
 macro "Linac_Field_Size_Analysis"{
 
-version = "1.0";
-update_date = "23 March 2016 by MB";
+version = "1.1";
+update_date = "20 May 2016 by MB";
+
+// V1.1: Added option for 2x2cm field measurement.
 
 // + + + + + + + + + + + + + This whole macro is enclosed in a 'do... while' loop to allow analysis to be restarted if box at end is ticked i.e. if RepeatAnalysis = true + + + + + + + + + + + + + + + +
 
@@ -148,12 +150,12 @@ update_date = "23 March 2016 by MB";
 	LinacChoices = newArray("LA1", "LA2", "LA3", "LA4", "LA5", "LA6", "Red-A", "Red-B", "Select");
 
 	EnergyChoices = newArray("6 MV","10 MV","15 MV");
-	FieldChoices = newArray("4x4cm","10x10cm");
+	FieldChoices = newArray("2x2cm","4x4cm","10x10cm");
 	FFDChoices = newArray("100cm","125cm");
 	CollChoices = newArray("0","90","270");
 
-	FieldSizeHorizChoices = newArray(4,10);				//	relate horiz & vert field size to that selected
-	FieldSizeVertChoices = newArray(4,10);				//	rectangular fields by varying these
+	FieldSizeHorizChoices = newArray(2,4,10);				//	relate horiz & vert field size to that selected
+	FieldSizeVertChoices = newArray(2,4,10);				//	rectangular fields by varying these
 	FFDChoicesVal = newArray(100,125);					//	FFD used to calculate field size measured
 
 	ScannerChoices = newArray("V750 Pro","11000XL Pro");
