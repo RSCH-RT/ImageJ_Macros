@@ -50,8 +50,11 @@ var Pt0Y;
 
 macro "Find Points" {
 
-version = "1.0";
-update_date = "23 March 2016 by MB";
+version = "1.1";
+update_date = "22 July 2016 by MB";
+
+//*************Update Log**************
+// v1.1 - 22/Jul/16 - formatted results for import into QATrack (added colons as separators on jaws)
 
 // *************** STEP 1 ***************
 // Show a dialog to user so that they know the macro is running, initialise images
@@ -215,10 +218,10 @@ update_date = "23 March 2016 by MB";
 
 	printHeader();
 	print("For Col 90");
-            print("   X1     "+d2s(dSouth, 2)+"cm");
-            print("   X2     "+d2s(dNorth, 2)+"cm");
-            print("   Y1     "+d2s(dEast, 2)+"cm");
-            print("   Y2     "+d2s(dWest, 2)+"cm");
+            print("   X1 : "+d2s(dSouth, 2)+"cm");
+            print("   X2 : "+d2s(dNorth, 2)+"cm");
+            print("   Y1 : "+d2s(dEast, 2)+"cm");
+            print("   Y2 : "+d2s(dWest, 2)+"cm");
 
 	saveResults();
 
@@ -340,7 +343,7 @@ function saveResults(){
 	contents = getInfo();
 
 	FileExt = ".txt";
-	title1 = strDateImage+"-"+myLinac+"-"+intEnergy+"-CongResults" + FileExt+ FileExt;	//	Title of log window is filename without extension as defined at start.
+	title1 = strDateImage+"-"+myLinac+"-"+intEnergy+"-CongResults" + FileExt;	//	Title of log window is filename without extension as defined at start.
 	title2 = "["+title1+"]";				
 	f = title2;
 	if (isOpen(title1)) {
