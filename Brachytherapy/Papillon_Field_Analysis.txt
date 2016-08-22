@@ -221,6 +221,7 @@ update_date = "16 August 2016 by MB";
 	print("------------------------------------------------------------------------");
 	print("                    Papillon Field Analysis Results");
 	print("------------------------------------------------------------------------");
+	print("Macro Version: " + version);
 	print("\n");
 	print("File Analysed:   \t" +myFileName);
 	print("Exposure Date:   \t" + DateSelected);
@@ -377,10 +378,14 @@ update_date = "16 August 2016 by MB";
 	}
 
 	print("\n");
-	print("-----------  Field Size  (Tol: +/- " + FieldSizeTol + " mm)  ----------");
-	print("Length  \t| Std.    \t| Meas.   \t| Result");
-	print("EW  \t| " + d2s(fieldEW,1) + "  \t| " + d2s(EWdistmm,1) +"  \t| " + ResultFieldSizeDiffEW);
-	print("NS  \t| " + d2s(fieldNS,1) + "  \t| " + d2s(NSdistmm,1) +"  \t| " + ResultFieldSizeDiffNS);
+	print("-----------  Field Size Results  ----------");
+	print("Expected EW: " + d2s(fieldEW,1));
+	print("Expected NS: " + d2s(fieldNS,1));
+	print("Tolerance (mm): " + FieldSizeTol);
+	print("Measured EW: " + d2s(EWdistmm,1));
+	print("Measured NS: " + d2s(NSdistmm,1));
+	print("Result EW: " + ResultFieldSizeDiffEW);
+	print("Result NS: " + ResultFieldSizeDiffNS);
 
 
 ///////	7*	//////////	Peripheral ROIs & BG ROIs Positioned for Uniformity Analysis	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -511,13 +516,26 @@ update_date = "16 August 2016 by MB";
 	}
 
 	print("\n");
-	print("---------  Uniformity Ratios  (Tol: +/- " + RatioTol + " %)  ---------");
-	print("Posn.  \t| Std.   \t| Meas.  \t| Result");
-//	print("C  \t" + RATIOcentre);
-	print("N  \t" + "| " + d2s(UniformityNRatioSelected,3) + "\t| " + d2s(RATIOnorth,3) + "\t| " + d2s(RATIOnorthDifPerc,1) + "%\t| " + ResultRatioN);
-	print("S  \t" + "| " + d2s(UniformitySRatioSelected,3) + "\t| " + d2s(RATIOsouth,3) + "\t| " + d2s(RATIOsouthDifPerc,1) + "%\t| " + ResultRatioS);
-	print("E  \t" + "| " + d2s(UniformityERatioSelected,3) + "\t| " + d2s(RATIOeast,3) + "\t| " + d2s(RATIOeastDifPerc,1) + "%\t| " + ResultRatioE);
-	print("W  \t" + "| " + d2s(UniformityWRatioSelected,3) + "\t| " + d2s(RATIOwest,3) + "\t| " + d2s(RATIOwestDifPerc,1) + "%\t| " + ResultRatioW);
+	print("---------  Uniformity Results  ---------");
+
+	print("Uniformity Std-N: " + d2s(UniformityNRatioSelected,3));
+	print("Uniformity Std-S: " + d2s(UniformitySRatioSelected,3));
+	print("Uniformity Std-E: " + d2s(UniformityERatioSelected,3));
+	print("Uniformity Std-W: " + d2s(UniformityWRatioSelected,3));
+	print("Tolerance (%): " + RatioTol);
+	print("Measured Ratio-N: " + d2s(RATIOnorth,3));
+	print("Measured Ratio-S: " + d2s(RATIOsouth,3));
+	print("Measured Ratio-E: " + d2s(RATIOeast,3));
+	print("Measured Ratio-W: " + d2s(RATIOwest,3));
+	print("Difference (%)-N: " + d2s(RATIOnorthDifPerc,1));
+	print("Difference (%)-S: " + d2s(RATIOsouthDifPerc,1));
+	print("Difference (%)-E: " + d2s(RATIOeastDifPerc,1));
+	print("Difference (%)-W: " + d2s(RATIOwestDifPerc,1));
+	print("Result-N : " +ResultRatioN);
+	print("Result-S : " +ResultRatioS);
+	print("Result-E : " +ResultRatioE);
+	print("Result-W : " +ResultRatioW);
+	
 
 	} else {
 	
@@ -587,11 +605,9 @@ update_date = "16 August 2016 by MB";
 	Dialog.show();
 
 	print("\n");
-	print("-----------  Comments  -----------");
-	print(Dialog.getString());
+	print("Comments: " + Dialog.getString());
 	print("\n");
-	print("-----------  Analysis Performed by  -----------");
-	print(Dialog.getString());
+	print("Performed by: " + Dialog.getString());
 	print("\n");
 	print("------------------------------------------------------------------------");
 	print("                    End of Results");
