@@ -21,6 +21,9 @@
 
 var intX		//	Global Variables need to be specified outside of the macro
 var intY
+var centreX
+var centreY
+var mean
 
 macro "Papillon_Field_Analysis"{
 
@@ -31,13 +34,16 @@ macro "Papillon_Field_Analysis"{
 
 //// *** Version number and date last updated. To be used within the code *** /////
 
-version = "1.0";
-update_date = "23 March 2016 by MB";
+version = "1.1";
+update_date = "16 August 2016 by MB";
+
+/// V1.1 Updated to find applicator centre using fitted circle ROI. Altered display of results for simple extraction in QATrack. Profile plots inverted by setting y limits.
 
 ///////	0	//////////	Setup ImageJ as required & get image info	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	do {
 	requires("1.47p");
 	run("Profile Plot Options...", "width=450 height=300 interpolate draw sub-pixel");
+	run("Set Measurements...", "area mean standard min centroid center bounding display redirect=None decimal=3");
 
 	Dialog.create("Macro Opened");
 	Dialog.addMessage("---- Papillon Field Analysis ----");
@@ -106,6 +112,7 @@ update_date = "23 March 2016 by MB";
 ///////	1	//////////	Tolerance Levels & Standard Figures	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
      //     Constants used
+	LineDistFromCentremm = 30;							//	distance of lines drawn. Must be long enough to cross field edge
 	roiSize = 2;
 	ProfileWidthmm = 2;					//	Sets the width of the measured profile in mm - aim is to average over a wider profile to avoid problems with any noise/dust/dead pixels in image
 	UniMeasDist = newArray("7","8","9","9");				//	Distance of unifomrity ROIs from centre in mm
@@ -214,6 +221,7 @@ update_date = "23 March 2016 by MB";
 	print("------------------------------------------------------------------------");
 	print("                    Papillon Field Analysis Results");
 	print("------------------------------------------------------------------------");
+	print("Macro Version: " + version);
 	print("\n");
 	print("File Analysed:   \t" +myFileName);
 	print("Exposure Date:   \t" + DateSelected);
@@ -232,37 +240,27 @@ update_date = "23 March 2016 by MB";
 	setTool("zoom");									//	Set tool to magnify, for user to zoom in before starting
 	waitForUser("Zoom", "Click on image to magnify\n \nClick OK when complete");
 
-	setTool("multipoint");								//	Set tool to multipoint, for user to select points
-	waitForUser("Crosswire Selection", "Select 4 Crosswire Marks Starting at Top and Working Clockwise\n \nEnsure that RED channel is selected using scroll bar at bottom of image\n \nClick OK when complete");
+//*********** find centre of irradiation by fitting circles to 3 points placed by user
 
-	run("Measure");
 
-	selectWindow("Results");								//	moves results window out of view
-	setLocation(screenWidth()*0.95,screenHeight()*0.95);
-
-	while(nResults!=4) {
-		run("Clear Results");							//	use to clear results if wrong # pts selected
-		setTool("multipoint");							//	4 points only should be selected for analysis
-		waitForUser("You must select 4 crosswire points to complete analysis");
-		run("Measure");
-	}
-
-	arrX = newArray(4);							//	create array with 4 selected points
-	arrY = newArray(4);
-	for (i=0; i<4;i++) {							//	Get coords of 4 Selected Points and place into Array
-		arrX[i] = getResult("X",i);
-		arrY[i] = getResult("Y",i);
-	}
-
-	NX = arrX[0];							//	Get Coords from array for each point to allow calc of intersection
-	NY = arrY[0];							//	NX is the X coord of the North (top) point
-	EX = arrX[1];
-	EY = arrY[1];
-	SX = arrX[2];
-	SY = arrY[2];
-	WX = arrX[3];
-	WY = arrY[3];
-
+	//CircleCentreROI(roiSizePx,roiSizePx,"Centre ROI 50%","Red","Select 3 points around 50% exposure edge.\n \nEnsure that RED channel is selected using scroll bar at bottom of image\n \nClick OK when complete");
+	CircleCentreROI(roiSize*EWscale,roiSize*NSscale,"Centre ROI 50%","Red","Select 3 points around 50% exposure edge. (Use 'alt' to delete a point)\n \nEnsure that RED channel is selected using scroll bar at bottom of image\n \nClick OK when complete");	
+		circlemean = mean;
+		centrex = centreX;
+		centrey = centreY;
+		
+	NX = centrex;									// set positions of extended line points
+	NY = centrey - (LineDistFromCentremm * NSscale);
+	EX = centrex + (LineDistFromCentremm * EWscale);
+	EY = centrey;
+	SX = centrex;
+	SY = centrey + (LineDistFromCentremm * NSscale);
+	WX = centrex - (LineDistFromCentremm * EWscale);
+	WY = centrey;
+	
+//********** Create lines to use for getting profiles/ROIs etc
+	
+	
 	Line(NX,NY,SX,SY, "LineNS", "yellow");
 	run("Measure");
 	angleNS = getResult("Angle", nResults - 1);				//	get angle of line - is in degrees and requires conversion to radians for use in calculations
@@ -271,6 +269,9 @@ update_date = "23 March 2016 by MB";
 	run("Measure");
 	angleEW = getResult("Angle", nResults - 1);
 
+
+	
+	
 ///////	4	//////////	Central ROI positioned & measured	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	findIntersection(WX, WY, EX, EY, NX, NY, SX, SY);			//	Find Intersection to give coords of centre of field
@@ -346,10 +347,14 @@ update_date = "23 March 2016 by MB";
 	}
 
 	print("\n");
-	print("-----------  Field Size  (Tol: +/- " + FieldSizeTol + " mm)  ----------");
-	print("Length  \t| Std.    \t| Meas.   \t| Result");
-	print("EW  \t| " + d2s(fieldEW,1) + "  \t| " + d2s(EWdistmm,1) +"  \t| " + ResultFieldSizeDiffEW);
-	print("NS  \t| " + d2s(fieldNS,1) + "  \t| " + d2s(NSdistmm,1) +"  \t| " + ResultFieldSizeDiffNS);
+	print("-----------  Field Size Results  ----------");
+	print("Expected EW: " + d2s(fieldEW,1));
+	print("Expected NS: " + d2s(fieldNS,1));
+	print("Tolerance (mm): " + FieldSizeTol);
+	print("Measured EW: " + d2s(EWdistmm,1));
+	print("Measured NS: " + d2s(NSdistmm,1));
+	print("Result EW: " + ResultFieldSizeDiffEW);
+	print("Result NS: " + ResultFieldSizeDiffNS);
 
 
 ///////	7*	//////////	Peripheral ROIs & BG ROIs Positioned for Uniformity Analysis	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -480,13 +485,26 @@ update_date = "23 March 2016 by MB";
 	}
 
 	print("\n");
-	print("---------  Uniformity Ratios  (Tol: +/- " + RatioTol + " %)  ---------");
-	print("Posn.  \t| Std.   \t| Meas.  \t| Result");
-//	print("C  \t" + RATIOcentre);
-	print("N  \t" + "| " + d2s(UniformityNRatioSelected,3) + "\t| " + d2s(RATIOnorth,3) + "\t| " + d2s(RATIOnorthDifPerc,1) + "%\t| " + ResultRatioN);
-	print("S  \t" + "| " + d2s(UniformitySRatioSelected,3) + "\t| " + d2s(RATIOsouth,3) + "\t| " + d2s(RATIOsouthDifPerc,1) + "%\t| " + ResultRatioS);
-	print("E  \t" + "| " + d2s(UniformityERatioSelected,3) + "\t| " + d2s(RATIOeast,3) + "\t| " + d2s(RATIOeastDifPerc,1) + "%\t| " + ResultRatioE);
-	print("W  \t" + "| " + d2s(UniformityWRatioSelected,3) + "\t| " + d2s(RATIOwest,3) + "\t| " + d2s(RATIOwestDifPerc,1) + "%\t| " + ResultRatioW);
+	print("---------  Uniformity Results  ---------");
+
+	print("Uniformity Std-N: " + d2s(UniformityNRatioSelected,3));
+	print("Uniformity Std-S: " + d2s(UniformitySRatioSelected,3));
+	print("Uniformity Std-E: " + d2s(UniformityERatioSelected,3));
+	print("Uniformity Std-W: " + d2s(UniformityWRatioSelected,3));
+	print("Tolerance (%): " + RatioTol);
+	print("Measured Ratio-N: " + d2s(RATIOnorth,3));
+	print("Measured Ratio-S: " + d2s(RATIOsouth,3));
+	print("Measured Ratio-E: " + d2s(RATIOeast,3));
+	print("Measured Ratio-W: " + d2s(RATIOwest,3));
+	print("Difference (%)-N: " + d2s(RATIOnorthDifPerc,1));
+	print("Difference (%)-S: " + d2s(RATIOsouthDifPerc,1));
+	print("Difference (%)-E: " + d2s(RATIOeastDifPerc,1));
+	print("Difference (%)-W: " + d2s(RATIOwestDifPerc,1));
+	print("Result-N : " +ResultRatioN);
+	print("Result-S : " +ResultRatioS);
+	print("Result-E : " +ResultRatioE);
+	print("Result-W : " +ResultRatioW);
+	
 
 	} else {
 	
@@ -505,19 +523,21 @@ update_date = "23 March 2016 by MB";
 
 	// North South Profile Plot
 	selectImage(origImageID);
-	roiManager("select",0);
+	roiManager("select",1);
 	profileNS = getProfile();
 	Plot.create("North - South Plot", "Position", "Pixel Value", profileNS);
 	Plot.setFrameSize(350,250);
+	Plot.setLimits(NaN, NaN, 70000, 15000);
 	Plot.show();
 	setLocation(0,500);
 
 	// West East Profile Plot
 	selectImage(origImageID);
-	roiManager("select",1);
+	roiManager("select",2);
 	profileWE = getProfile();
 	Plot.create("West - East Plot", "Position", "Pixel Value", profileWE);
 	Plot.setFrameSize(350,250);
+	Plot.setLimits(NaN, NaN, 70000, 15000);
 	Plot.show();
 	setLocation(500,500);
 	selectWindow("North - South Plot");
@@ -554,11 +574,9 @@ update_date = "23 March 2016 by MB";
 	Dialog.show();
 
 	print("\n");
-	print("-----------  Comments  -----------");
-	print(Dialog.getString());
+	print("Comments: " + Dialog.getString());
 	print("\n");
-	print("-----------  Analysis Performed by  -----------");
-	print(Dialog.getString());
+	print("Performed by: " + Dialog.getString());
 	print("\n");
 	print("------------------------------------------------------------------------");
 	print("                    End of Results");
@@ -708,6 +726,43 @@ function DoubleLine(x1, y1, x2, y2, x3, y3, name) {
 }
 //----------------------- End of Make Line Function ---------------------------------------------------------------------------------------------
 
+
+// ----------------------------------- MAKE CIRCLE CENTRE ROI FUNCTION -------------------------------------------------------------------------
+function CircleCentreROI(width, height, name, colour,message) {
+
+	resultsstart = nResults;							//	used to count the number of resutls so that can check if 3 points have been selected for circle fitting.
+
+	setTool("multipoint");
+	waitForUser("Mark Circle Edge", message);						//	user selects (3) points around the circle edge
+
+	run("Measure");
+		selectWindow("Results");							//	moves results window out of view
+		setLocation(screenWidth()*0.95,screenHeight()*0.95);
+
+	resultsend = nResults;
+
+	while(resultsend-resultsstart != 3) {
+		resultsstart = nResults;
+			setTool("multipoint");						//	3 points only should be selected to fit circle
+			waitForUser(message);
+			run("Measure");
+		resultsend = nResults;
+		}
+
+	run("Fit Circle");
+	//waitForUser("Circular field marked correctly? Adjust position if necessary.");		//	could remove this as centre of 50% is not critical.
+
+	run("Measure");								//	get circle centre coordinates
+	//waitForUser("measure done");
+		centreX = getResult("XM",nResults - 1);
+		centreY = getResult("YM",nResults - 1);
+
+	RectROI(centreX-(width/2),centreY-(height/2),width,height, name, colour);		//	plot central ROI
+
+	run("Measure");								//	get 50% mean from ROI
+		mean = getResult("Mean",nResults - 1);
+}
+// --------------------- End of MakeCircleRoi Funciton ------------------------------------------------------------
 
 //----------------------- FIND INTERSECTION FUCNTION -------------------------------------------------------------------------------------------------
 
