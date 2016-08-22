@@ -240,37 +240,6 @@ update_date = "16 August 2016 by MB";
 	setTool("zoom");									//	Set tool to magnify, for user to zoom in before starting
 	waitForUser("Zoom", "Click on image to magnify\n \nClick OK when complete");
 
-	//setTool("multipoint");								//	Set tool to multipoint, for user to select points
-	//waitForUser("Crosswire Selection", "Select 4 Crosswire Marks Starting at Top and Working Clockwise\n \nEnsure that RED channel is selected using scroll bar at bottom of image\n \nClick OK when complete");
-
-	//run("Measure");
-
-	//selectWindow("Results");								//	moves results window out of view
-	//setLocation(screenWidth()*0.95,screenHeight()*0.95);
-
-	//while(nResults!=4) {
-	//	run("Clear Results");							//	use to clear results if wrong # pts selected
-	//	setTool("multipoint");							//	4 points only should be selected for analysis
-	//	waitForUser("You must select 4 crosswire points to complete analysis");
-	//	run("Measure");
-	//}
-
-	//arrX = newArray(4);							//	create array with 4 selected points
-	//arrY = newArray(4);
-	//for (i=0; i<4;i++) {							//	Get coords of 4 Selected Points and place into Array
-	//	arrX[i] = getResult("X",i);
-	//	arrY[i] = getResult("Y",i);
-	//}
-
-	//NX = arrX[0];							//	Get Coords from array for each point to allow calc of intersection
-	//NY = arrY[0];							//	NX is the X coord of the North (top) point
-	//EX = arrX[1];
-	//EY = arrY[1];
-	//SX = arrX[2];
-	//SY = arrY[2];
-	//WX = arrX[3];
-	//WY = arrY[3];
-
 //*********** find centre of irradiation by fitting circles to 3 points placed by user
 
 
