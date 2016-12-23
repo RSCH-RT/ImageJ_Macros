@@ -723,7 +723,7 @@ function AnalyseJaw(jaw) {			//	jaw is the name of the jaw passed to the functio
 			ResultFieldSizeDiffX1 = "FAIL";
 		}
 
-		print("X1 (G)  \t| " + d2s(FieldSizeX1Selected/10,1) + "  \t| " + d2s(X1distmm/10,2) + " \t| " + ResultFieldSizeDiffX1);
+		//print("X1 (G)  \t| " + d2s(FieldSizeX1Selected/10,1) + "  \t| " + d2s(X1distmm/10,2) + " \t| " + ResultFieldSizeDiffX1);
 		print("");
 		print("X1 (G) Std: " + d2s(FieldSizeX1Selected/10,1));
 		print("X1 (G) Meas: " + d2s(X1distmm/10,2));
@@ -744,7 +744,7 @@ function AnalyseJaw(jaw) {			//	jaw is the name of the jaw passed to the functio
 			ResultFieldSizeDiffX2 = "FAIL";
 		}
 
-		print("X2 (T)  \t| " + d2s(FieldSizeX2Selected/10,1) + "  \t| " + d2s(X2distmm/10,2) + " \t| " + ResultFieldSizeDiffX2);
+		//print("X2 (T)  \t| " + d2s(FieldSizeX2Selected/10,1) + "  \t| " + d2s(X2distmm/10,2) + " \t| " + ResultFieldSizeDiffX2);
 		print("");
 		print("X2 (T) Std: " + d2s(FieldSizeX2Selected/10,1));
 		print("X2 (T) Meas: " + d2s(X2distmm/10,2));
@@ -765,7 +765,7 @@ function AnalyseJaw(jaw) {			//	jaw is the name of the jaw passed to the functio
 			ResultFieldSizeDiffY1 = "FAIL";
 		}
 
-		print("Y1 (B)  \t| " + d2s(FieldSizeY1Selected/10,1) + "  \t| " + d2s(Y1distmm/10,2) + " \t| " + ResultFieldSizeDiffY1);
+		//print("Y1 (B)  \t| " + d2s(FieldSizeY1Selected/10,1) + "  \t| " + d2s(Y1distmm/10,2) + " \t| " + ResultFieldSizeDiffY1);
 		print("");
 		print("Y1 (B) Std: " + d2s(FieldSizeY1Selected/10,1));
 		print("Y1 (B) Meas: " + d2s(Y1distmm/10,2));
@@ -786,7 +786,7 @@ function AnalyseJaw(jaw) {			//	jaw is the name of the jaw passed to the functio
 			ResultFieldSizeDiffY2 = "FAIL";
 		}
 
-		print("Y2 (A)  \t| " + d2s(FieldSizeY2Selected/10,1) + "  \t| " + d2s(Y2distmm/10,2) + " \t| " + ResultFieldSizeDiffY2);
+		//print("Y2 (A)  \t| " + d2s(FieldSizeY2Selected/10,1) + "  \t| " + d2s(Y2distmm/10,2) + " \t| " + ResultFieldSizeDiffY2);
 		print("");
 		print("Y2 (A) Std: " + d2s(FieldSizeY2Selected/10,1));
 		print("Y2 (A) Meas: " + d2s(Y2distmm/10,2));
