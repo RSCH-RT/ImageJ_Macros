@@ -29,8 +29,8 @@ var myLen;
 // -------------------------------------------------------------------------------------------------------------------------------------------
 macro "AssymAnalysis" {
 
-version = "1.0";
-update_date = "23 March 2016 by MB";
+version = "1.1";
+update_date = "23 December 2016 by MB";
 
 	requires("1.47p");
 	myLinac = getArgument() ;
@@ -390,6 +390,7 @@ function printHeader(){
 	print(myFolder);
 	print("Image Date: "+strDateImage);
 	print("Analysis Date: "+strDate);
+	print("Macro Version:"+version);
 	print("Linac: "+myLinac);
 	print("Energy: "+intEnergy+"MV");
 	print("SSD: "+intSSD+"cm");

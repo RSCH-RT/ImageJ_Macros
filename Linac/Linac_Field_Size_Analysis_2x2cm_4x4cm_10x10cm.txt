@@ -32,9 +32,9 @@ var ext2y
 macro "Linac_Field_Size_Analysis"{
 
 version = "1.1";
-update_date = "20 May 2016 by MB";
+update_date = "23 December 2016 by MB";
 
-// V1.1: Added option for 2x2cm field measurement.
+// V1.1: Added option for 2x2cm field measurement and formatted for QATrack use.
 
 // + + + + + + + + + + + + + This whole macro is enclosed in a 'do... while' loop to allow analysis to be restarted if box at end is ticked i.e. if RepeatAnalysis = true + + + + + + + + + + + + + + + +
 
@@ -247,9 +247,10 @@ update_date = "20 May 2016 by MB";
 	print("                    Linac Field Analysis Results");
 	print("------------------------------------------------------------------------");
 	print("\n");
-	print("File Analysed:   \t" +myFileName);
-	print("Exposure Date:   \t" + DateSelected);
-	print("Analysis Date:   \t" +TimeString);
+	print("File Analysed:   " +myFileName);
+	print("Exposure Date:   " + DateSelected);
+	print("Analysis Date:   " +TimeString);
+	print("Macro Version:"+version);
 	print("\n");
 	print("Scanner:   \t" + ScannerModelSelected);
 	print("Linac:   \t" + LinacSelected);
@@ -461,19 +462,38 @@ update_date = "20 May 2016 by MB";
 
 
 	print("\n");
-	print("-----------  Field Size (cm)  (Tol: +/- " + FieldSizeTol + " mm)  ----------");
-	print("Length  \t| Std.    \t| Meas.   \t| Result");
+//	print("-----------  Field Size (cm)  (Tol: +/- " + FieldSizeTol + " mm)  ----------");
+	print("----------- Measured Field Size (cm) ----------");
+//	print("Length  \t| Std.    \t| Meas.   \t| Result");
 
 //	print("EW  \t| " + d2s(fieldEW/10,1) + "  \t| " + d2s(EWdistmm/10,2) +"  \t| " + ResultFieldSizeDiffEW);
 //	print("NS  \t| " + d2s(fieldNS/10,1) + "  \t| " + d2s(NSdistmm/10,2) +"  \t| " + ResultFieldSizeDiffNS);
 //	print("\n");
+//
+//
+//	print("X1 (T)  \t| " + d2s(fieldNS/20,2) + "  \t| " + d2s(CSdistmm/10,2) +"  \t| " + ResultFieldSizeDiffCS);
+//	print("X2 (G)  \t| " + d2s(fieldNS/20,2) + "  \t| " + d2s(CNdistmm/10,2) +"  \t| " + ResultFieldSizeDiffCN);
+//
+//	print("Y1 (B)  \t| " + d2s(fieldEW/20,2) + "  \t| " + d2s(CEdistmm/10,2) +"  \t| " + ResultFieldSizeDiffCE);
+//	print("Y2 (A)  \t| " + d2s(fieldEW/20,2) + "  \t| " + d2s(CWdistmm/10,2) +"  \t| " + ResultFieldSizeDiffCW);
 
-
-	print("X1 (T)  \t| " + d2s(fieldNS/20,2) + "  \t| " + d2s(CSdistmm/10,2) +"  \t| " + ResultFieldSizeDiffCS);
-	print("X2 (G)  \t| " + d2s(fieldNS/20,2) + "  \t| " + d2s(CNdistmm/10,2) +"  \t| " + ResultFieldSizeDiffCN);
-
-	print("Y1 (B)  \t| " + d2s(fieldEW/20,2) + "  \t| " + d2s(CEdistmm/10,2) +"  \t| " + ResultFieldSizeDiffCE);
-	print("Y2 (A)  \t| " + d2s(fieldEW/20,2) + "  \t| " + d2s(CWdistmm/10,2) +"  \t| " + ResultFieldSizeDiffCW);
+	print("Field Size Tol (mm): " + FieldSizeTol);
+	print("")
+	print("X1 (T) Std: " + d2s(fieldNS/20,2));
+	print("X1 (T) Meas: " + d2s(CSdistmm/10,2));
+	print("X1 (T) Result: " + ResultFieldSizeDiffCS);
+	print("")
+	print("X2 (G) Std: " + d2s(fieldNS/20,2));
+	print("X2 (G) Meas: " + d2s(CNdistmm/10,2));
+	print("X2 (G) Result: " + ResultFieldSizeDiffCN);
+	print("")
+	print("Y1 (B) Std: " + d2s(fieldEW/20,2));
+	print("Y1 (B) Meas: " + d2s(CEdistmm/10,2));
+	print("Y1 (B) Result: " + ResultFieldSizeDiffCE);
+	print("")
+	print("Y2 (A) Std: " + d2s(fieldEW/20,2));
+	print("Y2 (A) Meas: " + d2s(CWdistmm/10,2));
+	print("Y2 (A) Result: " + ResultFieldSizeDiffCW);
 
 
 

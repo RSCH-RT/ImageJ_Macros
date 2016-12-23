@@ -47,8 +47,8 @@ var strDateImage;
 
 macro "Find Points" {
 
-version = "1.0";
-update_date = "23 March 2016 by MB";
+version = "1.1";
+update_date = "23 December 2016 by MB";
 
 // *************** STEP 1 ***************
 // Show a dialog to user so that they know the macro is running, initialise images
@@ -198,10 +198,10 @@ update_date = "23 March 2016 by MB";
 
 	printHeader();
 	print("For Col 90");
-            print("   X1     "+d2s(dSouthX, 2)+"cm");
-            print("   X2     "+d2s(dNorthX, 2)+"cm");
-            print("   Y1     "+d2s(dEastX, 2)+"cm");
-            print("   Y2     "+d2s(dWestX, 2)+"cm");
+            print("   X1: "+d2s(dSouthX, 2)+"cm");
+            print("   X2: "+d2s(dNorthX, 2)+"cm");
+            print("   Y1: "+d2s(dEastX, 2)+"cm");
+            print("   Y2: "+d2s(dWestX, 2)+"cm");
 
 	saveResults();
 
@@ -507,9 +507,10 @@ function printHeader(){
 	print("--------------------------------------------------------");
 	print("  Congruence Image Analysis using EPID");
 	print("--------------------------------------------------------");
-            print("Image Analysed: "+strName);
+            	print("Image Analysed: "+strName);
 	print("Image Date: "+strDateImage);
 	print("Analysis Date: "+strDate);
+	print("Macro Version:"+version);
 	print("Linac: "+myLinac);
 	print("Energy: "+intEnergy+"MV");
 	print("SSD: "+intSSD+"cm");

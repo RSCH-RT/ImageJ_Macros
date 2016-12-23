@@ -52,8 +52,8 @@ var Y2dist
 
 macro "Linac_Field_Size_Analysis"{
 
-version = "1.0";
-update_date = "23 March 2016 by MB";
+version = "1.1";
+update_date = "23 December 2016 by MB";
 
 // + + + + + + + + + + + + + This whole macro is enclosed in a 'do... while' loop to allow analysis to be restarted if box at end is ticked i.e. if RepeatAnalysis = true + + + + + + + + + + + + + + + +
 
@@ -262,6 +262,7 @@ update_date = "23 March 2016 by MB";
 	print("File Analysed:   \t" +myFileName);
 	print("Exposure Date:   \t" + DateSelected);
 	print("Analysis Date:   \t" +TimeString);
+	print("Macro Version:"+version);
 	print("\n");
 	print("Scanner:   \t" + ScannerModelSelected);
 	print("Linac:   \t" + LinacSelected);
@@ -273,6 +274,9 @@ update_date = "23 March 2016 by MB";
 
 	print("-----------  Field Size (cm)  (Tol: +/- " + FieldSizeTol + " mm)  ----------");
 	print("Length  \t| Std.    \t| Meas.   \t| Result");
+	print("----------- Field Size (cm) ----------");
+	print("");
+	print("Field Size Tol (mm): " + FieldSizeTol);
 
 
 ///////	SELECT JAW & RUN ANALYSIS FUNCTION	//////////////////////////////////////////////////////////////////////////////////////////
@@ -720,6 +724,10 @@ function AnalyseJaw(jaw) {			//	jaw is the name of the jaw passed to the functio
 		}
 
 		print("X1 (G)  \t| " + d2s(FieldSizeX1Selected/10,1) + "  \t| " + d2s(X1distmm/10,2) + " \t| " + ResultFieldSizeDiffX1);
+		print("");
+		print("X1 (G) Std: " + d2s(FieldSizeX1Selected/10,1));
+		print("X1 (G) Meas: " + d2s(X1distmm/10,2));
+		print("X1 (G) Result: " + ResultFieldSizeDiffX1);
 	}
 
 	if(jaw == "X2") {
@@ -737,6 +745,10 @@ function AnalyseJaw(jaw) {			//	jaw is the name of the jaw passed to the functio
 		}
 
 		print("X2 (T)  \t| " + d2s(FieldSizeX2Selected/10,1) + "  \t| " + d2s(X2distmm/10,2) + " \t| " + ResultFieldSizeDiffX2);
+		print("");
+		print("X2 (T) Std: " + d2s(FieldSizeX2Selected/10,1));
+		print("X2 (T) Meas: " + d2s(X2distmm/10,2));
+		print("X2 (T) Result: " + ResultFieldSizeDiffX2);
 	}
 
 	if(jaw == "Y1") {
@@ -754,6 +766,10 @@ function AnalyseJaw(jaw) {			//	jaw is the name of the jaw passed to the functio
 		}
 
 		print("Y1 (B)  \t| " + d2s(FieldSizeY1Selected/10,1) + "  \t| " + d2s(Y1distmm/10,2) + " \t| " + ResultFieldSizeDiffY1);
+		print("");
+		print("Y1 (B) Std: " + d2s(FieldSizeY1Selected/10,1));
+		print("Y1 (B) Meas: " + d2s(Y1distmm/10,2));
+		print("Y1 (B) Result: " + ResultFieldSizeDiffY1);
 	}
 
 	if(jaw == "Y2") {
@@ -771,6 +787,10 @@ function AnalyseJaw(jaw) {			//	jaw is the name of the jaw passed to the functio
 		}
 
 		print("Y2 (A)  \t| " + d2s(FieldSizeY2Selected/10,1) + "  \t| " + d2s(Y2distmm/10,2) + " \t| " + ResultFieldSizeDiffY2);
+		print("");
+		print("Y2 (A) Std: " + d2s(FieldSizeY2Selected/10,1));
+		print("Y2 (A) Meas: " + d2s(Y2distmm/10,2));
+		print("Y2 (A) Result: " + ResultFieldSizeDiffY2);
 
 	}
 	}

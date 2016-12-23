@@ -51,7 +51,7 @@ var Pt0Y;
 macro "Find Points" {
 
 version = "1.1";
-update_date = "22 July 2016 by MB";
+update_date = "23 December 2016 by MB";
 
 //*************Update Log**************
 // v1.1 - 22/Jul/16 - formatted results for import into QATrack (added colons as separators on jaws)
@@ -305,7 +305,8 @@ function printHeader(){
 	print("--------------------------------------------------------");
 	print("  Congruence Image Analysis using EPID");
 	print("--------------------------------------------------------");
-            print("Image Analysed: "+strName);
+	print("Macro Version:"+version);
+            	print("Image Analysed: "+strName);
 	print("Image Date: "+strDateImage);
 	print("Analysis Date: "+strDate);
 	print("Linac: "+myLinac);

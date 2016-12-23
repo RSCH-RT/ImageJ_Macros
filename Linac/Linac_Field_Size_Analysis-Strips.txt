@@ -28,8 +28,8 @@ var ext2y
 
 macro "Linac_Field_Size_Analysis"{
 
-version = "1.0";
-update_date = "23 March 2016 by MB";
+version = "1.1";
+update_date = "23 December 2016 by MB";
 
 // + + + + + + + + + + + + + This whole macro is enclosed in a 'do... while' loop to allow analysis to be restarted if box at end is ticked i.e. if RepeatAnalysis = true + + + + + + + + + + + + + + + +
 
@@ -227,6 +227,7 @@ update_date = "23 March 2016 by MB";
 	print("File Analysed:   \t" +myFileName);
 	print("Exposure Date:   \t" + DateSelected);
 	print("Analysis Date:   \t" +TimeString);
+	print("Macro Version:"+version);
 	print("\n");
 	print("Scanner:   \t" + ScannerModelSelected);
 	print("Linac:   \t" + LinacSelected);
@@ -542,16 +543,35 @@ update_date = "23 March 2016 by MB";
 
 	if(count==1) {
 	print("\n");
-	print("-----------  Field Size (cm)  (Tol: +/- " + FieldSizeTol + " mm)  ----------");
-	print("Length  \t| Std.    \t| Meas.   \t| Result");
+	//print("-----------  Field Size (cm)  (Tol: +/- " + FieldSizeTol + " mm)  ----------");
+	print("----------- Field Size (cm) ------------");
+	//print("Length  \t| Std.    \t| Meas.   \t| Result");
+	print("");
+	print("Field Size Tol (mm): " + FieldSizeTol);
 	}
 
 	if(count==1) {
 	print("X1 (G)  \t| " + d2s(fieldLeft/20,2) + "  \t| " + d2s(LCNdistmm/10,2) +"  \t| " + ResultFieldSizeDiffLCN);
 	print("X2 (T)  \t| " + d2s(fieldLeft/20,2) + "  \t| " + d2s(LCSdistmm/10,2) +"  \t| " + ResultFieldSizeDiffLCS);
+	print("");
+	print("X1 (G) Std: " + d2s(fieldLeft/20,2));
+	print("X1 (G) Meas: " + d2s(LCNdistmm/10,2));
+	print("X1 (G) Result: " + ResultFieldSizeDiffLCN);
+	print("");
+	print("X2 (T) Std: " + d2s(fieldLeft/20,2));
+	print("X2 (T) Meas: " + d2s(LCSdistmm/10,2));
+	print("X2 (T) Result: " + ResultFieldSizeDiffLCS);
 	} else {
 	print("Y1 (B)  \t| " + d2s(fieldRight/20,2) + "  \t| " + d2s(RCNdistmm/10,2) +"  \t| " + ResultFieldSizeDiffRCN);
 	print("Y2 (A)  \t| " + d2s(fieldRight/20,2) + "  \t| " + d2s(RCSdistmm/10,2) +"  \t| " + ResultFieldSizeDiffRCS);
+	print("");
+	print("Y1 (B) Std: " + d2s(fieldRight/20,2));
+	print("Y1 (B) Meas: " + d2s(RCNdistmm/10,2));
+	print("Y1 (B) Result: " + ResultFieldSizeDiffRCN);
+	print("");
+	print("Y2 (A) Std: " + d2s(fieldRight/20,2));
+	print("Y2 (A) Meas: " + d2s(RCSdistmm/10,2));
+	print("Y2 (A) Result: " + ResultFieldSizeDiffRCS);
 	}
 
 	count = count+1;
