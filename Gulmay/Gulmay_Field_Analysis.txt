@@ -26,8 +26,8 @@ macro "Gulmay_Field_Analysis"{
 
 // + + + + + + + + + + + + + This whole macro is enclosed in a 'do... while' loop to allow analysis to be restarted if box at end is ticked i.e. if RepeatAnalysis = true + + + + + + + + + + + + + + + +
 
-version = "1.0";
-update_date = "23 March 2016 by MB";
+version = "1.1";
+update_date = "23 December 2016 by MB";
 
 ///////	0	//////////	Setup ImageJ as required & get image info	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	do {
@@ -164,7 +164,7 @@ update_date = "23 March 2016 by MB";
 	FieldSizeVertChoices = newArray("4","6","8","6","10","8","8","10","15","20");
 	FieldShapeChoices = newArray("Circle","Circle","Circle","Rectangle","Rectangle","Rectangle","Rectangle","Rectangle","Rectangle","Rectangle");
 	
-	ScannerChoices = newArray("11000XL Pro","V750 Pro");
+	ScannerChoices = newArray("V750 Pro","11000XL Pro");
 
 	DayChoices = newArray(31);			//	length of array
 		for(i=0; i<DayChoices.length; i++)	//	set incremental values in array
@@ -188,7 +188,7 @@ update_date = "23 March 2016 by MB";
 	Dialog.addChoice("Month", MonthChoices, YesterdayMonth);
 	Dialog.addChoice("Year", YearChoices, YesterdayYear);
 	Dialog.addMessage("--- Exposure Details ---");
-	Dialog.addChoice("Scanner", ScannerChoices);
+	Dialog.addChoice("Scanner", ScannerChoices,ScannerChoices[1]);
 	Dialog.addChoice("Beam", BeamChoices);
 	Dialog.addChoice("Applicator", AppChoices);
 	Dialog.show();
@@ -360,18 +360,22 @@ if (advanced == false) {
 	print("                    Gulmay Field Analysis Results");
 	print("------------------------------------------------------------------------");
 	print("\n");
-	print("File Analysed:   \t" +myFileName);
-	print("Exposure Date:   \t" + DateSelected);
-	print("Analysis Date:   \t" +TimeString);
+	print("File Analysed:  " +myFileName);
+	print("Exposure Date:  " + DateSelected);
+	print("Analysis Date:  " +TimeString);
+	print("Macro Version:"+version);
 	print("\n");
-	print("Scanner:   \t" + ScannerModelSelected);
-	print("Energy:   \t" + EnergySelected + "  \t(Filter " + FilterSelected + ")");
-	print("App:   \t" + AppSelected + "    \t" + FSDSelected + " FSD   \t(App. " + AppIDSelected + ")");
-	print("Uniformity Analysed:   \t" + UniformityPerformed);
+	print("Scanner:  " + ScannerModelSelected);
+	print("Energy: " + EnergySelected);
+	print("Filter: " + FilterSelected);
+	print("App:   \t" + AppSelected);
+	print("FSD: " + FSDSelected);
+	print("App. :  " + AppIDSelected);
+	print("Uniformity Analysed:  " + UniformityPerformed);
 	
 
-//	print("Horizontal Scale (pix/mm):\t" + EWscale);
-//	print("Vertical Scale (pix/mm):\t" + NSscale);
+//	print("Horizontal Scale (pix/mm): " + EWscale);
+//	print("Vertical Scale (pix/mm): " + NSscale);
 
 ///////	3	//////////	Cross Wires Marked	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -436,8 +440,8 @@ if (advanced == false) {
 	ThresVal = RAWmeanROIcentre * ThresFactor;	
 //	ThresVal = RAWmeanROIcentre - ((1-EdgeThresPerc/100)* (RAWmeanROIcentre - bgROImean));			//	converts factor to pixel value
 
-//	print("Field Edge Threshold (%):\t" + EdgeThresPerc);
-//	print("Threshold Val (pix):\t" + ThresVal);
+//	print("Field Edge Threshold (%): " + EdgeThresPerc);
+//	print("Threshold Val (pix): " + ThresVal);
 
 	FindEdges(NX,NY,SX,SY,CX,CY, ProfileWidthmm * EWscale,ThresVal,"Edge North","Edge South",0,0);		//	this is a custom function which finds the 2 edges of the field between the specified points
 	FindEdges(WX,WY,EX,EY,CX,CY, ProfileWidthmm * NSscale,ThresVal,"Edge West","Edge East",0,0);
@@ -493,10 +497,18 @@ if (advanced == false) {
 	}
 
 	print("\n");
-	print("-----------  Field Size  (Tol: +/- " + FieldSizeTol + " mm)  ----------");
-	print("Length  \t| Std.    \t| Meas.   \t| Result");
-	print("EW  \t| " + d2s(fieldEW,1) + "  \t| " + d2s(EWdistmm,1) +"  \t| " + ResultFieldSizeDiffEW);
-	print("NS  \t| " + d2s(fieldNS,1) + "  \t| " + d2s(NSdistmm,1) +"  \t| " + ResultFieldSizeDiffNS);
+	//print("-----------  Field Size  (Tol: +/- " + FieldSizeTol + " mm)  ----------");
+	print("----------- Filed Size (cm) ----------");
+	print("");
+	print("Field Size Tol (mm): " + FieldSizeTol);
+	//print("Length  \t| Std.    \t| Meas.   \t| Result");
+	//print("EW  \t| " + d2s(fieldEW,1) + "  \t| " + d2s(EWdistmm,1) +"  \t| " + ResultFieldSizeDiffEW);
+	//print("NS  \t| " + d2s(fieldNS,1) + "  \t| " + d2s(NSdistmm,1) +"  \t| " + ResultFieldSizeDiffNS);
+	print("EW Std: " + d2s(fieldEW,1));
+	print("EW Meas: " + d2s(EWdistmm,1));
+	print("");
+	print("NS Std: " + d2s(fieldNS,1));
+	print("NS Meas: " + d2s(NSdistmm,1));
 
 
 ///////	7*	//////////	Peripheral ROIs & BG ROIs Positioned for Uniformity Analysis	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -658,13 +670,37 @@ if (advanced == true) {
 
 
 	print("\n");
-	print("---------  Uniformity Ratios  (Tol: +/- " + RatioTol + " %)  ---------");
-	print("Posn.  \t| Std.   \t| Meas.  \t| Result");
+	//print("---------  Uniformity Ratios  (Tol: +/- " + RatioTol + " %)  ---------");
+	//print("Posn.  \t| Std.   \t| Meas.  \t| Result");
 //	print("C  \t" + RATIOcentre);
-	print("Sink  \t" + "| " + d2s(RatioNStdSelected,3) + "\t| " + d2s(RATIOnorth,3) + "\t| " + d2s(RATIOnorthDifPerc,1) + "%\t| " + ResultRatioN);
-	print("Int.  \t" + "| " + d2s(RatioSStdSelected,3) + "\t| " + d2s(RATIOsouth,3) + "\t| " + d2s(RATIOsouthDifPerc,1) + "%\t| " + ResultRatioS);
-	print("A+  \t" + "| " + d2s(RatioEStdSelected,3) + "\t| " + d2s(RATIOeast,3) + "\t| " + d2s(RATIOeastDifPerc,1) + "%\t| " + ResultRatioE);
-	print("C-  \t" + "| " + d2s(RatioWStdSelected,3) + "\t| " + d2s(RATIOwest,3) + "\t| " + d2s(RATIOwestDifPerc,1) + "%\t| " + ResultRatioW);
+//	print("Sink  \t" + "| " + d2s(RatioNStdSelected,3) + "\t| " + d2s(RATIOnorth,3) + "\t| " + d2s(RATIOnorthDifPerc,1) + "%\t| " + ResultRatioN);
+//	print("Int.  \t" + "| " + d2s(RatioSStdSelected,3) + "\t| " + d2s(RATIOsouth,3) + "\t| " + d2s(RATIOsouthDifPerc,1) + "%\t| " + ResultRatioS);
+//	print("A+  \t" + "| " + d2s(RatioEStdSelected,3) + "\t| " + d2s(RATIOeast,3) + "\t| " + d2s(RATIOeastDifPerc,1) + "%\t| " + ResultRatioE);
+//	print("C-  \t" + "| " + d2s(RatioWStdSelected,3) + "\t| " + d2s(RATIOwest,3) + "\t| " + d2s(RATIOwestDifPerc,1) + "%\t| " + ResultRatioW);
+	print("--------- Uniformity Ratios ---------");
+	print("Ratio Tol (%): " + RatioTol);
+	print("");
+	print("Sink Std: " + d2s(RatioNStdSelected,3));
+	print("Sink Meas: " + d2s(RATIOnorth,3));
+	print("Sink Dif (%): " + d2s(RATIOnorthDifPerc,1));
+	print("Sink Result: " + ResultRatioN);
+	print("");
+	print("Int. Std: " + d2s(RatioSStdSelected,3));
+	print("Int. Meas: " + d2s(RATIOsouth,3));
+	print("Int. Dif (%): " + d2s(RATIOsouthDifPerc,1));
+	print("Int. Result: " + ResultRatioS);
+	print("");
+	print("A+ Std: " + d2s(RatioEStdSelected,3));
+	print("A+ Meas: " + d2s(RATIOeast,3));
+	print("A+ Dif (%): " + d2s(RATIOeastDifPerc,1));
+	print("A+ Result: " + ResultRatioE);
+	print("");
+	print("C- Std: " + d2s(RatioWStdSelected,3));
+	print("C- Meas: " + d2s(RATIOwest,3));
+	print("C- Dif (%): " + d2s(RATIOwestDifPerc,1));
+	print("C- Result: " + ResultRatioW);
+	print("");
+	
 
 //	print("Distance of Peripheral ROIs form Centre (mm)");
 //	print("North & South:\t" + 10*roiNSdistcm);
