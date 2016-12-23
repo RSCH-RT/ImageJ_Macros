@@ -551,8 +551,8 @@ update_date = "23 December 2016 by MB";
 	}
 
 	if(count==1) {
-	print("X1 (G)  \t| " + d2s(fieldLeft/20,2) + "  \t| " + d2s(LCNdistmm/10,2) +"  \t| " + ResultFieldSizeDiffLCN);
-	print("X2 (T)  \t| " + d2s(fieldLeft/20,2) + "  \t| " + d2s(LCSdistmm/10,2) +"  \t| " + ResultFieldSizeDiffLCS);
+	//print("X1 (G)  \t| " + d2s(fieldLeft/20,2) + "  \t| " + d2s(LCNdistmm/10,2) +"  \t| " + ResultFieldSizeDiffLCN);
+	//print("X2 (T)  \t| " + d2s(fieldLeft/20,2) + "  \t| " + d2s(LCSdistmm/10,2) +"  \t| " + ResultFieldSizeDiffLCS);
 	print("");
 	print("X1 (G) Std: " + d2s(fieldLeft/20,2));
 	print("X1 (G) Meas: " + d2s(LCNdistmm/10,2));
@@ -562,8 +562,8 @@ update_date = "23 December 2016 by MB";
 	print("X2 (T) Meas: " + d2s(LCSdistmm/10,2));
 	print("X2 (T) Result: " + ResultFieldSizeDiffLCS);
 	} else {
-	print("Y1 (B)  \t| " + d2s(fieldRight/20,2) + "  \t| " + d2s(RCNdistmm/10,2) +"  \t| " + ResultFieldSizeDiffRCN);
-	print("Y2 (A)  \t| " + d2s(fieldRight/20,2) + "  \t| " + d2s(RCSdistmm/10,2) +"  \t| " + ResultFieldSizeDiffRCS);
+	//print("Y1 (B)  \t| " + d2s(fieldRight/20,2) + "  \t| " + d2s(RCNdistmm/10,2) +"  \t| " + ResultFieldSizeDiffRCN);
+	//print("Y2 (A)  \t| " + d2s(fieldRight/20,2) + "  \t| " + d2s(RCSdistmm/10,2) +"  \t| " + ResultFieldSizeDiffRCS);
 	print("");
 	print("Y1 (B) Std: " + d2s(fieldRight/20,2));
 	print("Y1 (B) Meas: " + d2s(RCNdistmm/10,2));
