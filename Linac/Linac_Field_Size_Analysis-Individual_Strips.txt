@@ -272,8 +272,8 @@ update_date = "23 December 2016 by MB";
 	print("FFD:   \t" + FFDSelected + "cm");
 	print("\n");
 
-	print("-----------  Field Size (cm)  (Tol: +/- " + FieldSizeTol + " mm)  ----------");
-	print("Length  \t| Std.    \t| Meas.   \t| Result");
+	//print("-----------  Field Size (cm)  (Tol: +/- " + FieldSizeTol + " mm)  ----------");
+	//print("Length  \t| Std.    \t| Meas.   \t| Result");
 	print("----------- Field Size (cm) ----------");
 	print("");
 	print("Field Size Tol (mm): " + FieldSizeTol);
