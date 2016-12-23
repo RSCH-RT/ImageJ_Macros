@@ -478,19 +478,19 @@ update_date = "23 December 2016 by MB";
 //	print("Y2 (A)  \t| " + d2s(fieldEW/20,2) + "  \t| " + d2s(CWdistmm/10,2) +"  \t| " + ResultFieldSizeDiffCW);
 
 	print("Field Size Tol (mm): " + FieldSizeTol);
-	print("")
+	print("");
 	print("X1 (T) Std: " + d2s(fieldNS/20,2));
 	print("X1 (T) Meas: " + d2s(CSdistmm/10,2));
 	print("X1 (T) Result: " + ResultFieldSizeDiffCS);
-	print("")
+	print("");
 	print("X2 (G) Std: " + d2s(fieldNS/20,2));
 	print("X2 (G) Meas: " + d2s(CNdistmm/10,2));
 	print("X2 (G) Result: " + ResultFieldSizeDiffCN);
-	print("")
+	print("");
 	print("Y1 (B) Std: " + d2s(fieldEW/20,2));
 	print("Y1 (B) Meas: " + d2s(CEdistmm/10,2));
 	print("Y1 (B) Result: " + ResultFieldSizeDiffCE);
-	print("")
+	print("");
 	print("Y2 (A) Std: " + d2s(fieldEW/20,2));
 	print("Y2 (A) Meas: " + d2s(CWdistmm/10,2));
 	print("Y2 (A) Result: " + ResultFieldSizeDiffCW);
