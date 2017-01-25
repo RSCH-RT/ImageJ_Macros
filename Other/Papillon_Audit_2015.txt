@@ -2,7 +2,7 @@
 //		PAPILLON FIELD SIZE & UNIFORMITY by Matt Bolt at Royal Surrey County Hospital April 2015		//
 // 	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -	//
 //	Macro will measure field size as defined by threshold set by user from 50% image				//
-//	Uniformity also measured at distance form centre specified by user						//
+//	Uniformity also measured at distance from centre specified by user						//
 //	Image should be TIFF with 3 seperate colour channels showing when opened					//
 
 
