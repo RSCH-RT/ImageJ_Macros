@@ -1,7 +1,7 @@
 # ImageJ Macros
 
-##Current Macros
-###[Linac](Linac/)
+## Current Macros
+### [Linac](Linac/)
 - Asymmetric Rad-Light (Redhill & Guildford)
 - Congruence (Guildford)
 - Congruence (Redhill) *[check the name of this]*
@@ -9,19 +9,19 @@
 - 30x30 strips (Guildford)
 - 30x30 Individual Strips (Redhill)
  
-###[Gulmay](Gulmay/)
+### [Gulmay](Gulmay/)
 - Field Size and Uniformity
 
-###[Brachytherapy](Brachytherapy/)
+### [Brachytherapy](Brachytherapy/)
 - Papillon Field Size & Uniformity
 
-###[Other](Other/)
+### [Other](Other/)
 - Papillon Audit Macro
  
-###[Developmental](Dev/)
+### [Developmental](Dev/)
 - Electron Applicator Checks
 - Off-Axis measurements
 
-###[ImageJ Macro Selector Menu](Menu/)
+### [ImageJ Macro Selector Menu](Menu/)
 
 
