@@ -34,7 +34,7 @@ macro "Papillon_Field_Analysis"{
 
 //// *** Version number and date last updated. To be used within the code *** /////
 
-version = "1.1";
+version = "1.2";
 update_date = "23 December 2016 by MB";
 
 /// V1.1 Updated to find applicator centre using fitted circle ROI. Altered display of results for simple extraction in QATrack. Profile plots inverted by setting y limits.
