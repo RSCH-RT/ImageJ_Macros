@@ -50,7 +50,7 @@ var Pt0Y;
 
 macro "Find Points" {
 
-version = "1.1";
+version = "1.2";
 update_date = "23 December 2016 by MB";
 
 //*************Update Log**************
