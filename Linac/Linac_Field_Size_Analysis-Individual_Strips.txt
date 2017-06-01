@@ -52,7 +52,7 @@ var Y2dist
 
 macro "Linac_Field_Size_Analysis"{
 
-version = "1.1";
+version = "1.2";
 update_date = "23 December 2016 by MB";
 
 // + + + + + + + + + + + + + This whole macro is enclosed in a 'do... while' loop to allow analysis to be restarted if box at end is ticked i.e. if RepeatAnalysis = true + + + + + + + + + + + + + + + +
