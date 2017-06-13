@@ -1,11 +1,10 @@
 // 	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -	//
-//				LINAC FIELD SIZE by Matt Bolt						//
+//				GULMAY FIELD SIZE & UNIFORMITY by Matt Bolt				//
 // 	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -	//
+//	Macro will measure field size as defined by threshold set by user						//
+//	Option is given to measure uniformity based on peripheral regions (NSEW)					//
 //													//
-//	This is designed to measure from 4cm, 10cm, 20cm and 10cm @125FSD (12.5cm) radiation field sizes		//
-//	Each side will be measured and given as a distance from the centre as defined by the crosswire marks		//
-//													//
-//	Field size determination is based on a pixel threshold determined from measurements				//
+//	* Will be performed only if uniformity analysis required (App C & J)						//
 //													//
 //	0 - Setup ImageJ ready for analysis to start								//
 //	1 - Tolerance Levels & Standard Figures								//
@@ -14,43 +13,29 @@
 //	4 - Central ROI positioned										//
 //	5 - Field edges determined										//
 //	6 - Field Size calculated from field edges								//
-//	7 - Option to check results, restart if required then and add comments					//
-//	8 - Save results											//
+//	*7 - Peripheral & BG ROIs positioned at set distance from central point					//
+//	*8 - Ratio of peripheral to central ROI determined to assess uniformity					//
+//	9 - Option to check results, restart if required then and add comments					//
+//	10 - Save results											//
 
 
 var intX		//	Global Variables need to be specified outside of the macro
 var intY
-var outerN
-var outerE
-var outerS
-var outerW
-var ext1x
-var ext1y
-var ext2x
-var ext2y
 
-macro "Linac_Field_Size_Analysis"{
-
-version = "1.1";
-update_date = "23 December 2016 by MB";
-
-// V1.1: Added option for 2x2cm field measurement and formatted for QATrack use.
+macro "Gulmay_Field_Analysis"{
 
 // + + + + + + + + + + + + + This whole macro is enclosed in a 'do... while' loop to allow analysis to be restarted if box at end is ticked i.e. if RepeatAnalysis = true + + + + + + + + + + + + + + + +
 
-	myLinac = getArgument() ;  // optional variable passed by MS Access
-	if(myLinac == "") {
-		myLinac = "Select";
-	}
+version = "1.2";
+update_date = "23 December 2016 by MB";
 
 ///////	0	//////////	Setup ImageJ as required & get image info	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	do {
-	//requires("1.47p");
-	run("Set Measurements...", "area mean standard min center bounding display redirect=None decimal=3");
+	requires("1.47p");
 	run("Profile Plot Options...", "width=450 height=300 interpolate draw sub-pixel");
 
 	Dialog.create("Macro Opened");
-	Dialog.addMessage("---- Linac Field Size Analysis ----");
+	Dialog.addMessage("---- Gulmay Field Analysis ----");
 	Dialog.addMessage("Version: " + version);
 	Dialog.addMessage("Last Updated: " + update_date);
 	if(nImages==0) {
@@ -60,12 +45,11 @@ update_date = "23 December 2016 by MB";
 	Dialog.addMessage("Click OK to start");
 	Dialog.show()
 
-//********** Get image details & Tidy up Exisiting Windows
-	
-   myDirectory = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\"+myLinac+"\\";
-   //myDirectory = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis";
+   myDirectory = "G:\\Shared\\Oncology\\Physics\\RTPhysics\\EBRT Dosimetry\\XstrahlGulmay Commissioning 2011 to 12\\Field Analysis QC";
    call("ij.io.OpenDialog.setDefaultDirectory", myDirectory);
    call("ij.plugin.frame.Editor.setDefaultDirectory", myDirectory);
+
+//********** Get image details & Tidy up Exisiting Windows
 
 	if (nImages ==0) {
 		//showMessageWithCancel("Select Image","Select image to analyse after clicking OK");		//	ensures an image is open before macro runs
@@ -88,7 +72,7 @@ update_date = "23 December 2016 by MB";
 	roiManager("Show All");
 	run("Line Width...", "line=1");						//	set line thickness to 1 pixel before starting
 
-
+	//defaultSaveDirectory = "G:\\Shared\\Oncology\\Physics\\RTPhysics\\EBRT Dosimetry\\XstrahlGulmay\\Field Analysis QC\\Results\\";
 	myFileName = getInfo("image.filename");				//	gets filename & imageID for referencing in code
 	myImageID = getImageID();
 	selectImage(myImageID);
@@ -129,6 +113,7 @@ update_date = "23 December 2016 by MB";
 	ImageWidthA3mm = 309.9;				//	known large scanner image width in mm (from scanner settings)
 	ImageHeightA3mm = 436.9;
 
+
 ///////	1	//////////	Tolerance Levels & Standard Figures	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
      //     Constants used
@@ -136,28 +121,49 @@ update_date = "23 December 2016 by MB";
 	ProfileWidthmm = 6;				//	Sets the width of the measured profile in mm - aim is to average over a wider profile to avoid provlems with any noise/dust/dead pixels in image
 
 
+	ThresFactorChoices = newArray("1.28","1.32","1.35","1.34");		//	Edge threshold factors for each beam - measured by taking exposures at 200 & 100MU.
+									//	This is a multip;lication factor for finding 50% pixel value for each energy
+
+
+     //     Uniformity Std Figs
+
+	//	North = Sink
+	//	South = Intercom
+	//	East = Anode
+	//	West = Cathode
+
+//	----- Correct as of 01/08/13 (Values given to 2 d.p.) -----
+
+
+//	if(dayOfMonth == 1 && month == 0) {
+//		YesterdayYear = year-1;
+//		} else {
+//		YesterdayYear = year;
+//		}
+
+	UniAppCMeasDist = 3;		// distance of uniformity ROIs from centre should be 3cm for 8cm circle (app C)
+	UniAppJMeasDist = 8;		// distance of uniformity ROIs from centre should be 8cm for 20x20 (app J)
+
      //     Tolerance Levels
 	FieldSizeTol = 2;			// tolerance for field size is +/- 2mm
-
-	LineExtensionmm = 50;				//	extension of line beyond marked points in mm which must go beyond field edge
+	//FieldEdgeTol = 1;			// tolerance for distance from pinned crosswire to field edge is +/- 1mm (should be 3mm for 30cm FSD, and 4mm for 50cm FSD)
+	RatioTol = 3;			// tolerance on uniformity ratios is +/- 3% (Equivalent to +/-5% in dose as on previous films)
 	
-	ThresFactorChoices100 = newArray(1.31,1.31,1.31);		//	Edge threshold factors for each beam (6,10,15MV) - measured by taking exposures at 400 & 200MU.
-	ThresFactorChoices125 = newArray(1.24,1.24,1.24);		//	This is a multipilication factor for finding 50% pixel value for each energy
-
 
 ///////	2	//////////	Field Details Selected	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	LinacChoices = newArray("LA1", "LA2", "LA3", "LA4", "LA5", "LA6", "Red-A", "Red-B", "Select");
+	BeamChoices = newArray("80kV - 30cm FSD","140kV - 30cm FSD","140kV - 50cm FSD","250kV - 50cm FSD");
+	AppChoices = newArray("4cm Circle","6cm Circle","8cm Circle","6x6cm","6x10cm","8x8cm","8x12cm","10x10cm","15x15cm","20x20cm");
 
-	EnergyChoices = newArray("6 MV","10 MV","15 MV");
-	FieldChoices = newArray("2x2cm","4x4cm","10x10cm");
-	FFDChoices = newArray("100cm","125cm");
-	CollChoices = newArray("0","90","270");
+	EnergyChoices = newArray("80kV","140kV","140kV","250kV");		//	1:1 relationship to FilterChoices array
+	FSDChoices = newArray("30cm","30cm","50cm","50cm");
+	FilterChoices = newArray("2","4","6","9");
 
-	FieldSizeHorizChoices = newArray(2,4,10);				//	relate horiz & vert field size to that selected
-	FieldSizeVertChoices = newArray(2,4,10);				//	rectangular fields by varying these
-	FFDChoicesVal = newArray(100,125);					//	FFD used to calculate field size measured
-
+	AppIDChoices = newArray("A","B","C","D","E","F","G","H","I","J");
+	FieldSizeHorizChoices = newArray("4","6","8","6","6","8","12","10","15","20");		//	relate horiz & vert field size to app selected
+	FieldSizeVertChoices = newArray("4","6","8","6","10","8","8","10","15","20");
+	FieldShapeChoices = newArray("Circle","Circle","Circle","Rectangle","Rectangle","Rectangle","Rectangle","Rectangle","Rectangle","Rectangle");
+	
 	ScannerChoices = newArray("V750 Pro","11000XL Pro");
 
 	DayChoices = newArray(31);			//	length of array
@@ -168,107 +174,208 @@ update_date = "23 December 2016 by MB";
 		for(i=0; i<YearChoices.length; i++)
 		YearChoices[i] = d2s(2010+i,0);
 
+	Dialog.create("Analysis Type");
+	Dialog.addCheckbox("Advanced Analysis Required",false);
+	Dialog.show();
+	
+	advanced = Dialog.getCheckbox();	// true or false to advanced use.
+
+
+	if(advanced == false) {
 	Dialog.create("Field Details");
 	Dialog.addMessage("--- Date of Exposure ---");
 	Dialog.addChoice("Day", DayChoices, YesterdayDay);
 	Dialog.addChoice("Month", MonthChoices, YesterdayMonth);
 	Dialog.addChoice("Year", YearChoices, YesterdayYear);
 	Dialog.addMessage("--- Exposure Details ---");
-
-	if(myLinac == "Red-A" || myLinac == "Red-B") {
-	Dialog.addChoice("Scanner", ScannerChoices,ScannerChoices[0]);
-	} else {
 	Dialog.addChoice("Scanner", ScannerChoices,ScannerChoices[1]);
+	Dialog.addChoice("Beam", BeamChoices);
+	Dialog.addChoice("Applicator", AppChoices);
+	Dialog.show();
 	}
 
-	//Dialog.addMessage("Linac: "+myLinac);
-	Dialog.addChoice("Linac", LinacChoices, myLinac);
-	Dialog.addChoice("Coll.", CollChoices, "90");
-	Dialog.addChoice("Energy", EnergyChoices);
-	Dialog.addChoice("Field Size", FieldChoices);
-	Dialog.addChoice("FFD", FFDChoices);
+	if(advanced == true) {
+	Dialog.create("Field Details");
+	Dialog.addMessage("--- Date of Exposure ---");
+	Dialog.addChoice("Day", DayChoices, YesterdayDay);
+	Dialog.addChoice("Month", MonthChoices, YesterdayMonth);
+	Dialog.addChoice("Year", YearChoices, YesterdayYear);
+	Dialog.addMessage("--- Exposure Details ---");
+	Dialog.addChoice("Scanner", ScannerChoices);
+	Dialog.addChoice("Beam", BeamChoices);
+	Dialog.addChoice("Applicator", AppChoices);
+	Dialog.addMessage("--- Analysis Parameters ---");
+	Dialog.addNumber("ROI Size (mm)",roiSize);
+	Dialog.addNumber("ROI dist from centre (cm)", 3);
 	Dialog.show();
+	}
 
 	DaySelected = Dialog.getChoice();
 	MonthSelected = Dialog.getChoice();
 	YearSelected = Dialog.getChoice();
 
-	DateSelected = DaySelected + "-" + MonthSelected + "-" + YearSelected;
-
 	ScannerSelected = Dialog.getChoice();
 
-	LinacSelected = Dialog.getChoice();
-	CollSelected = Dialog.getChoice();
-	EnergySelected = Dialog.getChoice();
-	FieldSelected = Dialog.getChoice();
-	FFDSelected = Dialog.getChoice();
+	EnergyFSD = Dialog.getChoice();
+	AppSelected = Dialog.getChoice();
 
-	FieldSelectedPos = ArrayPos(FieldChoices,FieldSelected);		//	get values from known position in array using function
-	FFDSelectedPos = ArrayPos(FFDChoices,FFDSelected);
+	if(advanced == true) {
+	roiSize = Dialog.getNumber();
+	roiEWdistcm = Dialog.getNumber();
+	roiNSdistcm = roiEWdistcm;
+	}
 
-	FieldSizeHorizSelected = FieldSizeHorizChoices[FieldSelectedPos];
-	FieldSizeVertSelected = FieldSizeVertChoices[FieldSelectedPos];
-	FFDSelected = FFDChoicesVal[FFDSelectedPos];
+	DateSelected = DaySelected + "-" + MonthSelected + "-" + YearSelected;
 
-	EnergySelectedPos = ArrayPos(EnergyChoices,EnergySelected);
-	FieldSizeHorizMeasured = FieldSizeHorizSelected*FFDSelected/100;
-	FieldSizeVertMeasured = FieldSizeVertSelected*FFDSelected/100;
-	
-	if(FFDSelected == 100) {						//	Selects threshold factor based on FFD and energy
-		ThresFactor = ThresFactorChoices100[EnergySelectedPos];
-		} else {
-		ThresFactor = ThresFactorChoices125[EnergySelectedPos];
-		}
+	BeamSelectedPos = ArrayPos(BeamChoices,EnergyFSD);
+	AppSelectedPos = ArrayPos(AppChoices,AppSelected);
 
+	EnergySelected = EnergyChoices[BeamSelectedPos];		//	Get field details from known array position for use during macro
+	FSDSelected = FSDChoices[BeamSelectedPos];
+	FilterSelected = FilterChoices[BeamSelectedPos];
 
-//	ThresFactor = ThresFactorChoices[EnergySelectedPos];		//	Threshold factor for field edges may vary with energy
+	ThresFactor = ThresFactorChoices[BeamSelectedPos];		//	Threshold factor for field edges may vary with energy
 //	EdgeThresPerc = 100*ThresFactor;
 	
+	AppIDSelected = AppIDChoices[AppSelectedPos];
+	FieldSizeHorizSelected = FieldSizeHorizChoices[AppSelectedPos];	//	Field size in cm
+	FieldSizeVertSelected = FieldSizeVertChoices[AppSelectedPos];
+	appShape = FieldShapeChoices[AppSelectedPos];
+
 	if(ScannerSelected == "11000XL Pro") {
+
+		run("In [+]");		//	Zoom into image
+
 		ImageWidthSelectedmm = ImageWidthA3mm;
 		ImageHeightSelectedmm = ImageHeightA3mm;
-		ScannerModelSelected = "Epsom Expression 11000 Pro XL";
-		//run("In [+]");						//	zoom on image
+		ScannerModelSelected = "Epson Expression 11000XL Pro";
+
+		RatioN80kV8circle = 0.97;		//	these are the standard background corrected uniformity ratios and should be kept up-to-date
+		RatioS80kV8circle = 0.97;		//	the correct ones are selected based on the energy/applicator selected and named RatioNStdSelected etc
+		RatioE80kV8circle = 0.98;
+		RatioW80kV8circle = 0.96;
+
+		RatioN140kV8circle = 0.97;		//	there are no film std figs for these
+		RatioS140kV8circle = 0.97;
+		RatioE140kV8circle = 0.98;
+		RatioW140kV8circle = 0.97;
+
+		RatioN140kV20x20 = 0.96;		//	Note that ratios depend upon the scanner selected due to the film not laying flat for large fields on the V750
+		RatioS140kV20x20 = 0.96;
+		RatioE140kV20x20 = 1.00; 		//0.97; These are the previous V750 values
+		RatioW140kV20x20 = 0.98;		//0.95;
+
+		RatioN250kV20x20 = 0.93;
+		RatioS250kV20x20 = 0.92;
+		RatioE250kV20x20 = 1.01;		//0.97;
+		RatioW250kV20x20 = 0.94;		//0.90;
+
 		} else {
+
 		ImageWidthSelectedmm = ImageWidthA4mm;
 		ImageHeightSelectedmm = ImageHeightA4mm;
 		ScannerModelSelected = "Epsom Perfection V750 Pro";
+
+		RatioN80kV8circle = 0.97;		//	these are the standard background corrected uniformity ratios and should be kept up-to-date
+		RatioS80kV8circle = 0.97;		//	the correct ones are selected based on the energy/applicator selected and named RatioNStdSelected etc
+		RatioE80kV8circle = 0.98;
+		RatioW80kV8circle = 0.96;
+
+		RatioN140kV8circle = 0.97;		//	there are no film std figs for these
+		RatioS140kV8circle = 0.97;
+		RatioE140kV8circle = 0.98;
+		RatioW140kV8circle = 0.97;
+
+		RatioN140kV20x20 = 0.96;
+		RatioS140kV20x20 = 0.96;
+		RatioE140kV20x20 = 0.97;
+		RatioW140kV20x20 = 0.95;
+
+		RatioN250kV20x20 = 0.93;
+		RatioS250kV20x20 = 0.92;
+		RatioE250kV20x20 = 0.97;
+		RatioW250kV20x20 = 0.90;
+
 		}
 
 	EWscale = ImageWidthPx / ImageWidthSelectedmm;		//	gives conversion factor from px to mm from scanner selected
 	NSscale = ImageHeightPx / ImageHeightSelectedmm;
 
-	LineExtensionpx = LineExtensionmm * NSscale;
+	fieldEW = 10*FieldSizeHorizSelected;				//	Field size in mm for calcs
+	fieldNS = 10*FieldSizeVertSelected;
 
-	fieldEW = 10*FieldSizeHorizMeasured;				//	Field size in mm for calcs
-	fieldNS = 10*FieldSizeVertMeasured;
+	if(advanced == true) {
+	roiEWdist = 10 * roiEWdistcm * EWscale;
+	roiNSdist = 10 * roiNSdistcm * NSscale;
+	}
+
+
+	if (appShape == "Circle") {					//	Display size dependant on circular or rectangular app.
+		FieldDetailsSelected = FieldSizeHorizSelected + " cm Diameter";
+		appThick = 3;
+		} else {
+		FieldDetailsSelected = FieldSizeHorizSelected + " x " + FieldSizeVertSelected + " cm";
+		appThick = 4;
+		}
+	
+	if (AppIDSelected == "C" || AppIDSelected == "J") {			//	If app A or J then perform uniformity test
+		UniformityAnalysis = true;
+		UniformityPerformed = "Yes";
+		} else {
+		UniformityAnalysis = false;
+		UniformityPerformed = "No";
+		}
+
+
+if (advanced == false) {
+	if (AppIDSelected == "C" && FilterSelected == 2) {			//	Set standard uniformity ratios to use based on app/filter
+		RatioNStdSelected = RatioN80kV8circle;
+		RatioSStdSelected = RatioS80kV8circle;
+		RatioEStdSelected = RatioE80kV8circle;
+		RatioWStdSelected = RatioW80kV8circle;
+		}
+
+	if (AppIDSelected == "C" && FilterSelected == 4) {
+		RatioNStdSelected = RatioN140kV8circle;
+		RatioSStdSelected = RatioS140kV8circle;
+		RatioEStdSelected = RatioE140kV8circle;
+		RatioWStdSelected = RatioW140kV8circle;
+		}
+
+	if (AppIDSelected == "J" && FilterSelected == 6) {
+		RatioNStdSelected = RatioN140kV20x20;
+		RatioSStdSelected = RatioS140kV20x20;
+		RatioEStdSelected = RatioE140kV20x20;
+		RatioWStdSelected = RatioW140kV20x20;
+		}
+	if (AppIDSelected == "J" && FilterSelected == 9) {
+		RatioNStdSelected = RatioN250kV20x20;
+		RatioSStdSelected = RatioS250kV20x20;
+		RatioEStdSelected = RatioE250kV20x20;
+		RatioWStdSelected = RatioW250kV20x20;
+		}
+}
 
 	print("------------------------------------------------------------------------");
-	print("                    Linac Field Analysis Results");
+	print("                    Gulmay Field Analysis Results");
 	print("------------------------------------------------------------------------");
 	print("\n");
-	print("File Analysed:   " +myFileName);
-	print("Exposure Date:   " + DateSelected);
-	print("Analysis Date:   " +TimeString);
+	print("File Analysed:  " +myFileName);
+	print("Exposure Date:  " + DateSelected);
+	print("Analysis Date:  " +TimeString);
 	print("Macro Version:"+version);
 	print("\n");
-	print("Scanner:   \t" + ScannerModelSelected);
-	print("Linac:   \t" + LinacSelected);
-	print("Coll.:   \t" + CollSelected);
-	print("Energy:   \t" + EnergySelected);
-	print("Field Size:   \t" + FieldSelected);
-	//print("Field Size H:   \t" + FieldSizeHorizSelected);
-	//print("Field Size V:   \t" + FieldSizeVertSelected);
-	print("FFD:   \t" + FFDSelected + "cm");
-	//print("Thres Factor: \t" + ThresFactor);
-	//print("\n");
-	//print("Irradiated Field Size Horiz:   \t" + FieldSizeHorizMeasured);
-	//print("Irradiated Field Size Vert:   \t" + FieldSizeHorizMeasured);
-
+	print("Scanner:  " + ScannerModelSelected);
+	print("Energy: " + EnergySelected);
+	print("Filter: " + FilterSelected);
+	print("App:   \t" + AppSelected);
+	print("FSD: " + FSDSelected);
+	print("App. :  " + AppIDSelected);
+	print("Uniformity Analysed:  " + UniformityPerformed);
 	
 
-//	print("Horizontal Scale (pix/mm):\t" + EWscale);
-//	print("Vertical Scale (pix/mm):\t" + NSscale);
+//	print("Horizontal Scale (pix/mm): " + EWscale);
+//	print("Vertical Scale (pix/mm): " + NSscale);
 
 ///////	3	//////////	Cross Wires Marked	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -292,7 +399,7 @@ update_date = "23 December 2016 by MB";
 	for (i=0; i<4;i++) {							//	Get coords of 4 Selected Points and place into Array
 		arrX[i] = getResult("X",i);
 		arrY[i] = getResult("Y",i);
-
+	}
 
 	NX = arrX[0];							//	Get Coords from array for each point to allow calc of intersection
 	NY = arrY[0];							//	NX is the X coord of the North (top) point
@@ -303,31 +410,14 @@ update_date = "23 December 2016 by MB";
 	WX = arrX[3];
 	WY = arrY[3];
 
-	}
-	
-	LineExt(NX,NY,SX,SY, LineExtensionpx,LineExtensionpx,"NS Line", "yellow");		//	extends the line based on the marked points
-		outerNX = ext1x;
-		outerNY = ext1y;
-		outerSX = ext2x;
-		outerSY = ext2y;
+	Line(NX,NY,SX,SY, "LineNS", "yellow");
+	run("Measure");
+	angleNS = getResult("Angle", nResults - 1);				//	get angle of line - is in degrees and requires conversion to radians for use in calculations
 
-	LineExt(WX,WY,EX,EY, LineExtensionpx,LineExtensionpx,"WE Line", "yellow");		//	extends the line based on the marked points
-		outerWX = ext1x;
-		outerWY = ext1y;
-		outerEX = ext2x;
-		outerEY = ext2y;
-	
+	Line(WX,WY,EX,EY,"LineEW", "yellow");
 
-//	Line(NX,NY,SX,SY, "LineNS", "yellow");
-//	run("Measure");
-//	angleNS = getResult("Angle", nResults - 1);				//	get angle of line - is in degrees and requires conversion to radians for use in calculations
-//
-//	Line(WX,WY,EX,EY,"LineEW", "yellow");
-//	run("Measure");
-//	angleEW = getResult("Angle", nResults - 1);
-
-
-
+	run("Measure");
+	angleEW = getResult("Angle", nResults - 1);
 
 ///////	4	//////////	Central ROI positioned & measured	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -350,17 +440,17 @@ update_date = "23 December 2016 by MB";
 	ThresVal = RAWmeanROIcentre * ThresFactor;	
 //	ThresVal = RAWmeanROIcentre - ((1-EdgeThresPerc/100)* (RAWmeanROIcentre - bgROImean));			//	converts factor to pixel value
 
-//	print("Field Edge Threshold (%):\t" + EdgeThresPerc);
-//	print("Threshold Val (pix):\t" + ThresVal);
+//	print("Field Edge Threshold (%): " + EdgeThresPerc);
+//	print("Threshold Val (pix): " + ThresVal);
 
-	FindEdges(outerNX,outerNY,outerSX,outerSY,CX,CY, ProfileWidthmm * EWscale,ThresVal,"Edge North","Edge South",0,0);		//	this is a custom function which finds the 2 edges of the field between the specified points
-	FindEdges(outerWX,outerWY,outerEX,outerEY,CX,CY, ProfileWidthmm * NSscale,ThresVal,"Edge West","Edge East",0,0);
+	FindEdges(NX,NY,SX,SY,CX,CY, ProfileWidthmm * EWscale,ThresVal,"Edge North","Edge South",0,0);		//	this is a custom function which finds the 2 edges of the field between the specified points
+	FindEdges(WX,WY,EX,EY,CX,CY, ProfileWidthmm * NSscale,ThresVal,"Edge West","Edge East",0,0);
 
 	setTool("multipoint");
 	selectWindow("ROI Manager");
 	setLocation(0.8*screenWidth(),0);
 	roiManager("Select", roiManager("count") - 4);
-	waitForUser("Field Edges", "Have Field Edges Been Located Correctly?\n \nAdjust points manually by selecting with the ROI Manager if Required\nYou may need to Zoom in to precisely position the points\n \nPress OK to continue");
+	waitForUser("Field Edges", "Have Field Edges Been Located Correctly?\n \nAdjust points manually by sleecting with the ROI Manager if Required\nYou may need to Zoom in to precisely position the points\n \nPress OK to continue");
 	setTool("Hand");
 
 	roiManager("Select", roiManager("count") - 4);			//	measure coords of field edges after any possible movement
@@ -376,16 +466,13 @@ update_date = "23 December 2016 by MB";
 	edgeNY = getResult("Y", nResults - 4);
 	edgeSX = getResult("X", nResults - 3);
 	edgeSY = getResult("Y", nResults - 3);
-	edgeWX = getResult("X", nResults - 2);
-	edgeWY = getResult("Y", nResults - 2);
-	edgeEX = getResult("X", nResults - 1);
-	edgeEY = getResult("Y", nResults - 1);
+	edgeEX = getResult("X", nResults - 2);
+	edgeEY = getResult("Y", nResults - 2);
+	edgeWX = getResult("X", nResults - 1);
+	edgeWY = getResult("Y", nResults - 1);
 
 ///////	6	//////////	Field Size Calculated from Field Edges	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	//	Field edge measured relative to central point which should be at crosswire intersection
-
-     //     Whole field
 	NSdist = calcDistance(edgeNX,edgeNY,edgeSX,edgeSY);
 	NSdistmm = NSdist / NSscale;
 	EWdist = calcDistance(edgeEX,edgeEY,edgeWX,edgeWY);
@@ -394,32 +481,9 @@ update_date = "23 December 2016 by MB";
 	NSdifmm = NSdistmm - fieldNS;
 	EWdifmm = EWdistmm - fieldEW;
 
-	//	With Coll = 90
-	//	North = Gantry = X2
-	//	South = Target = X1
-	//	East = B = Y1
-	//	West = A = Y2
-
-     //     Individual Jaws
-	CNdist = calcDistance(CX,CY,edgeNX,edgeNY);
-	CNdistmm = CNdist / NSscale;
-	CSdist = calcDistance(CX,CY,edgeSX,edgeSY);
-	CSdistmm = CSdist / NSscale;
-	CEdist = calcDistance(CX,CY,edgeEX,edgeEY);
-	CEdistmm = CEdist / EWscale;
-	CWdist = calcDistance(CX,CY,edgeWX,edgeWY);
-	CWdistmm = CWdist / EWscale;
-
-	CNdifmm = CNdistmm - (fieldNS/2);	//	need half the field size to get half field size for distance measurement.
-	CSdifmm = CSdistmm - (fieldNS/2);
-	CEdifmm = CEdistmm - (fieldEW/2);
-	CWdifmm = CWdistmm - (fieldEW/2);
+	//   Calc if field size is within tolerance
 
 
-     //   Calc if field size is within tolerance
-
-
-	//	Full field
 	if(abs(NSdifmm) < FieldSizeTol) {
 		ResultFieldSizeDiffNS = "OK";
 		} else {
@@ -432,72 +496,230 @@ update_date = "23 December 2016 by MB";
 		ResultFieldSizeDiffEW = "FAIL";
 	}
 
+	print("\n");
+	//print("-----------  Field Size  (Tol: +/- " + FieldSizeTol + " mm)  ----------");
+	print("----------- Filed Size (cm) ----------");
+	print("");
+	print("Field Size Tol (mm): " + FieldSizeTol);
+	//print("Length  \t| Std.    \t| Meas.   \t| Result");
+	//print("EW  \t| " + d2s(fieldEW,1) + "  \t| " + d2s(EWdistmm,1) +"  \t| " + ResultFieldSizeDiffEW);
+	//print("NS  \t| " + d2s(fieldNS,1) + "  \t| " + d2s(NSdistmm,1) +"  \t| " + ResultFieldSizeDiffNS);
+	print("EW Std: " + d2s(fieldEW,1));
+	print("EW Meas: " + d2s(EWdistmm,1));
+	print("");
+	print("NS Std: " + d2s(fieldNS,1));
+	print("NS Meas: " + d2s(NSdistmm,1));
 
-	//	Individual jaws
-	if(abs(CNdifmm) < FieldSizeTol) {
-		ResultFieldSizeDiffCN = "OK";
-		} else {
-		ResultFieldSizeDiffCN = "FAIL";
+
+///////	7*	//////////	Peripheral ROIs & BG ROIs Positioned for Uniformity Analysis	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// $$$$$
+
+	if(advanced == true) {
+	UniformityAnalysis = true;
+	UniformityPerformed = "Yes";
+	RatioNStdSelected = 1;
+	RatioSStdSelected = 1;
+	RatioEStdSelected = 1;
+	RatioWStdSelected = 1;
 	}
 
-	if(abs(CSdifmm) < FieldSizeTol) {
-		ResultFieldSizeDiffCS= "OK";
+	if (UniformityAnalysis == true) {		//	points 7 and 8 only run if true is slected and are contained within an IF statement marked with $$$$$
+
+if (advanced == false) {
+	if(AppIDSelected == "C") {						//	position of peripheral ROIs based on applicator selected
+		roiEWdistcm = 3;
+		roiNSdistcm = 3;
+		roiEWdist = 10 * roiEWdistcm * EWscale;
+		roiNSdist = 10 * roiNSdistcm * NSscale;
+	}
+	if(AppIDSelected == "J") {
+		roiEWdistcm = 8;
+		roiNSdistcm = 8;
+		roiEWdist = 10 * roiEWdistcm * EWscale;
+		roiNSdist = 10 * roiNSdistcm * NSscale;
+	}
+}
+
+	bgROIposNS = 10 * NSscale;					//	Distance of bg ROIs from marker points (10mm is set but user can then adjust positions)
+	bgROIposEW = 10 * EWscale;
+
+	if(NY-roiRadNS-bgROIposNS<0) {					//	if statement used to ensure ROI is positioned within image area
+		RectROI(NX-roiRadEW, NY+roiRadNS+bgROIposNS, roiDiamEW, roiDiamNS,"BG ROI North","blue");
 		} else {
-		ResultFieldSizeDiffCS = "FAIL";
+		RectROI(NX-roiRadEW, NY-roiRadNS-bgROIposNS, roiDiamEW, roiDiamNS,"BG ROI North","blue");
+	}
+
+	if(SY-roiRadNS+bgROIposNS>ImageHeightPx) {
+		RectROI(SX-roiRadEW, SY+roiRadNS-bgROIposNS, roiDiamEW, roiDiamNS,"BG ROI South","blue");
+		} else {
+		RectROI(SX-roiRadEW, SY-roiRadNS+bgROIposNS, roiDiamEW, roiDiamNS,"BG ROI South","blue");
+	}
+
+	if(WX-roiRadEW-bgROIposEW<0) {
+		RectROI(WX+roiRadEW+bgROIposEW, WY-roiRadEW, roiDiamEW, roiDiamNS,"BG ROI West","blue");
+		} else {
+		RectROI(WX-roiRadEW-bgROIposEW, WY-roiRadEW, roiDiamEW, roiDiamNS,"BG ROI West","blue");
+	}
+
+	if(EX-roiRadEW+bgROIposEW>ImageWidthPx) {
+		RectROI(EX-roiRadEW-bgROIposEW, EY-roiRadEW, roiDiamEW, roiDiamNS,"BG ROI East","blue");
+		} else {
+		RectROI(EX-roiRadEW+bgROIposEW, EY-roiRadEW, roiDiamEW, roiDiamNS,"BG ROI East","blue");
 	}
 
 
-	if(abs(CEdifmm) < FieldSizeTol) {
-		ResultFieldSizeDiffCE = "OK";
-		} else {
-		ResultFieldSizeDiffCE = "FAIL";
-	}
+	setTool("Rectangle");
+	selectWindow("ROI Manager");
+	setLocation(0.8*screenWidth(),0);
+	roiManager("Select", roiManager("count") - 4);
+	waitForUser("Background ROI Position", "Check position of Background ROIs\n \nTo move: Select using the ROI Manager Window & Click and Drag\n \nPress OK  when ROIs are correctly positioned");
+	setTool("Hand");								//	Ensure User does not easily adjust anything by a rogue click on screen
+	
+	roiManager("Select", roiManager("count") - 4);					//	Measures BG ROIs following any movement by user
+	run("Measure");
+	roiManager("Select", roiManager("count") - 3);
+	run("Measure");
+	roiManager("Select", roiManager("count") - 2);
+	run("Measure");
+	roiManager("Select", roiManager("count") - 1);
+	run("Measure");
 
-	if(abs(CWdifmm) < FieldSizeTol) {
-		ResultFieldSizeDiffCW = "OK";
-		} else {
-		ResultFieldSizeDiffCW = "FAIL";
-	}
+	RAWmeanROInorthBG = getResult("Mean", nResults - 4);			//	extracts mean of BG ROI
+	RAWmeanROIsouthBG = getResult("Mean", nResults - 3);
+	RAWmeanROIwestBG = getResult("Mean", nResults - 2);
+	RAWmeanROIeastBG = getResult("Mean", nResults - 1);
 
+	bgROImean = 0.25*(RAWmeanROInorthBG + RAWmeanROIsouthBG + RAWmeanROIeastBG + RAWmeanROIwestBG);		//	mean of all BG ROIs
+
+	NSXcorr = roiNSdist * cos(angleNS * PI / 180);				//	convert measured distances to X & Y distances using trig
+	NSYcorr = roiNSdist * sin(angleNS * PI / 180);
+	EWXcorr = roiEWdist * cos(angleEW * PI / 180);
+	EWYcorr = roiEWdist * sin(angleEW * PI / 180);
+
+	RectROI(CX-roiRadEW-NSXcorr, CY-roiRadNS+NSYcorr, roiDiamEW, roiDiamNS,"ROI North","red");		//	Make peripheral ROIs along lines
+	RectROI(CX-roiRadEW+NSXcorr, CY-roiRadNS-NSYcorr, roiDiamEW, roiDiamNS,"ROI South","red");
+	RectROI(CX-roiRadEW-EWXcorr, CY-roiRadNS+EWYcorr, roiDiamEW, roiDiamNS,"ROI West","red");
+	RectROI(CX-roiRadEW+EWXcorr, CY-roiRadNS-EWYcorr, roiDiamEW, roiDiamNS,"ROI East","red");
+
+
+if (advanced == true) {
+	setTool("Rectangle");				//	allow adjustment of uniformity ROIs
+	selectWindow("ROI Manager");
+	setLocation(0.8*screenWidth(),0);
+	roiManager("Select", roiManager("count") - 4);
+	waitForUser("Uniformity ROI Position", "Check position of Uniformity ROIs\n \nTo move: Select using the ROI Manager Window & Click and Drag\n \nPress OK  when ROIs are correctly positioned");
+	setTool("Hand");	
+}
+
+	roiManager("Select", roiManager("count") - 4);					//	Measures Peripheral ROIs
+	run("Measure");
+	roiManager("Select", roiManager("count") - 3);
+	run("Measure");
+	roiManager("Select", roiManager("count") - 2);
+	run("Measure");
+	roiManager("Select", roiManager("count") - 1);
+	run("Measure");
+
+	RAWmeanROInorth = getResult("Mean", nResults - 4);			//	extracts mean of peripheral ROIs
+	RAWmeanROIsouth = getResult("Mean", nResults - 3);
+	RAWmeanROIwest = getResult("Mean", nResults - 2);
+	RAWmeanROIeast = getResult("Mean", nResults - 1);
+
+	CORRmeanROIcentre = abs(RAWmeanROIcentre - bgROImean);
+	CORRmeanROInorth = abs(RAWmeanROInorth - bgROImean);
+	CORRmeanROIsouth = abs(RAWmeanROIsouth - bgROImean);
+	CORRmeanROIwest = abs(RAWmeanROIwest - bgROImean);
+	CORRmeanROIeast = abs(RAWmeanROIeast - bgROImean);
+
+
+///////	8*	//////////	Ratio of Peripheral ROIs to Centre calcualted for Uniformity Analysis	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	RATIOnorth = CORRmeanROInorth / CORRmeanROIcentre;		//	take ratio of peripheral ROIs to central
+	RATIOsouth = CORRmeanROIsouth / CORRmeanROIcentre;
+	RATIOwest = CORRmeanROIwest / CORRmeanROIcentre;
+	RATIOeast = CORRmeanROIeast / CORRmeanROIcentre;
+	RATIOcentre = CORRmeanROIcentre / CORRmeanROIcentre;
+
+	RATIOnorthDifPerc = ((RATIOnorth / RatioNStdSelected) - 1)*100;		//	calculate percentage difference of ratios from standards
+	RATIOsouthDifPerc = ((RATIOsouth / RatioSStdSelected) - 1)*100;
+	RATIOwestDifPerc = ((RATIOwest / RatioWStdSelected) - 1)*100;
+	RATIOeastDifPerc = ((RATIOeast / RatioEStdSelected) - 1)*100;
+
+	if(abs(RATIOnorthDifPerc) < RatioTol) {					//	Check ratios are within tolerance
+		ResultRatioN = "OK";
+		} else {
+		ResultRatioN = "FAIL";
+	}
+	if(abs(RATIOsouthDifPerc) < RatioTol) {
+		ResultRatioS = "OK";
+		} else {
+		ResultRatioS = "FAIL";
+	}
+	if(abs(RATIOwestDifPerc) < RatioTol) {
+		ResultRatioW = "OK";
+		} else {
+		ResultRatioW = "FAIL";
+	}
+	if(abs(RATIOeastDifPerc) < RatioTol) {
+		ResultRatioE = "OK";
+		} else {
+		ResultRatioE = "FAIL";
+	}
 
 
 	print("\n");
-//	print("-----------  Field Size (cm)  (Tol: +/- " + FieldSizeTol + " mm)  ----------");
-	print("----------- Measured Field Size (cm) ----------");
-//	print("Length  \t| Std.    \t| Meas.   \t| Result");
-
-//	print("EW  \t| " + d2s(fieldEW/10,1) + "  \t| " + d2s(EWdistmm/10,2) +"  \t| " + ResultFieldSizeDiffEW);
-//	print("NS  \t| " + d2s(fieldNS/10,1) + "  \t| " + d2s(NSdistmm/10,2) +"  \t| " + ResultFieldSizeDiffNS);
-//	print("\n");
-//
-//
-//	print("X1 (T)  \t| " + d2s(fieldNS/20,2) + "  \t| " + d2s(CSdistmm/10,2) +"  \t| " + ResultFieldSizeDiffCS);
-//	print("X2 (G)  \t| " + d2s(fieldNS/20,2) + "  \t| " + d2s(CNdistmm/10,2) +"  \t| " + ResultFieldSizeDiffCN);
-//
-//	print("Y1 (B)  \t| " + d2s(fieldEW/20,2) + "  \t| " + d2s(CEdistmm/10,2) +"  \t| " + ResultFieldSizeDiffCE);
-//	print("Y2 (A)  \t| " + d2s(fieldEW/20,2) + "  \t| " + d2s(CWdistmm/10,2) +"  \t| " + ResultFieldSizeDiffCW);
-
-	print("Field Size Tol (mm): " + FieldSizeTol);
+	//print("---------  Uniformity Ratios  (Tol: +/- " + RatioTol + " %)  ---------");
+	//print("Posn.  \t| Std.   \t| Meas.  \t| Result");
+//	print("C  \t" + RATIOcentre);
+//	print("Sink  \t" + "| " + d2s(RatioNStdSelected,3) + "\t| " + d2s(RATIOnorth,3) + "\t| " + d2s(RATIOnorthDifPerc,1) + "%\t| " + ResultRatioN);
+//	print("Int.  \t" + "| " + d2s(RatioSStdSelected,3) + "\t| " + d2s(RATIOsouth,3) + "\t| " + d2s(RATIOsouthDifPerc,1) + "%\t| " + ResultRatioS);
+//	print("A+  \t" + "| " + d2s(RatioEStdSelected,3) + "\t| " + d2s(RATIOeast,3) + "\t| " + d2s(RATIOeastDifPerc,1) + "%\t| " + ResultRatioE);
+//	print("C-  \t" + "| " + d2s(RatioWStdSelected,3) + "\t| " + d2s(RATIOwest,3) + "\t| " + d2s(RATIOwestDifPerc,1) + "%\t| " + ResultRatioW);
+	print("--------- Uniformity Ratios ---------");
+	print("Ratio Tol (%): " + RatioTol);
 	print("");
-	print("X1 (T) Std: " + d2s(fieldNS/20,2));
-	print("X1 (T) Meas: " + d2s(CSdistmm/10,2));
-	print("X1 (T) Result: " + ResultFieldSizeDiffCS);
+	print("Sink Std: " + d2s(RatioNStdSelected,3));
+	print("Sink Meas: " + d2s(RATIOnorth,3));
+	print("Sink Dif (%): " + d2s(RATIOnorthDifPerc,1));
+	print("Sink Result: " + ResultRatioN);
 	print("");
-	print("X2 (G) Std: " + d2s(fieldNS/20,2));
-	print("X2 (G) Meas: " + d2s(CNdistmm/10,2));
-	print("X2 (G) Result: " + ResultFieldSizeDiffCN);
+	print("Int. Std: " + d2s(RatioSStdSelected,3));
+	print("Int. Meas: " + d2s(RATIOsouth,3));
+	print("Int. Dif (%): " + d2s(RATIOsouthDifPerc,1));
+	print("Int. Result: " + ResultRatioS);
 	print("");
-	print("Y1 (B) Std: " + d2s(fieldEW/20,2));
-	print("Y1 (B) Meas: " + d2s(CEdistmm/10,2));
-	print("Y1 (B) Result: " + ResultFieldSizeDiffCE);
+	print("A+ Std: " + d2s(RatioEStdSelected,3));
+	print("A+ Meas: " + d2s(RATIOeast,3));
+	print("A+ Dif (%): " + d2s(RATIOeastDifPerc,1));
+	print("A+ Result: " + ResultRatioE);
 	print("");
-	print("Y2 (A) Std: " + d2s(fieldEW/20,2));
-	print("Y2 (A) Meas: " + d2s(CWdistmm/10,2));
-	print("Y2 (A) Result: " + ResultFieldSizeDiffCW);
+	print("C- Std: " + d2s(RatioWStdSelected,3));
+	print("C- Meas: " + d2s(RATIOwest,3));
+	print("C- Dif (%): " + d2s(RATIOwestDifPerc,1));
+	print("C- Result: " + ResultRatioW);
+	print("");
+	
 
+//	print("Distance of Peripheral ROIs form Centre (mm)");
+//	print("North & South:\t" + 10*roiNSdistcm);
+//	print("East & West:\t" + 10*roiEWdistcm);
 
+	} else {
+	
+	print("\n");
+	print("---------  Uniformity  ---------");
+	print("Not Measured");
+	print("\n");
+	print("\n");
+	print("\n");
+	print("\n");
 
-///////	7	//////////	Option to Check Results & Restart Analysis	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	}	//	end of IF statement for performing Uniformity analysis
+// $$$$$
+
+///////	9	//////////	Option to Check Results & Restart Analysis	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	waitForUser("Analysis Complete", "Check Results Displayed In Log Window.   Press OK to Continue");	//	user can check results prior to adding comments
 
@@ -515,12 +737,12 @@ update_date = "23 December 2016 by MB";
 // + + + + + + + + + + + + + This whole macro above is enclosed in a 'do... while' loop to allow analysis to be restarted if box at end is ticked i.e. if RepeatAnalysis = true;. + + + + + + + + + + + + + + + +
 
 
-///////	8	//////////	Add Comments & Save Results & Close Windows	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////	10	//////////	Add Comments & Save Results	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 	Dialog.create("Comments");							//	Allows user to insert comments if required. Default is "Results OK" These are then added to Log
 	Dialog.addMessage("Add any Comments in the Box Below");
-	Dialog.addString("Comments:", "(None)",40);
+	Dialog.addString("Comments:", "None",40);
 	Dialog.addMessage("");
 	Dialog.addString("Analysis Performed by:", "",10);
 	Dialog.addMessage("Click OK to Continue");
@@ -569,25 +791,9 @@ update_date = "23 December 2016 by MB";
 	print(f,contents);
 	saveAs("Text");
 	run("Close");		
-	
-	Dialog.create("Close Windows");
-	Dialog.addMessage("Record Results Displayed in Log Window");
-	Dialog.addCheckbox("Close All Open Images?",true);
-	Dialog.addCheckbox("Close All Open Windows?",true);
-	Dialog.addMessage("Press OK to continue");
-	Dialog.show();
-
-	doCloseIm = Dialog.getCheckbox();	//	returns true or false value for function
-	doCloseW = Dialog.getCheckbox();	//	returns true or false value for function
-
-	if (doCloseW == true) {
-		closeWindows();
 	}
 
-	if (doCloseIm == true) {
-		closeImages();
-	}
-	}
+
 // ------------------------------------- End of Field Size & Uniformity Macro ---------------------------------------------------------------------------------------------------------------
 //
 //	Functions below are used within the macro and should be kept in the same file as the above macro
@@ -626,35 +832,6 @@ function Line(x1,y1,x2,y2, name, colour) {
 	roiManager("Set Color", colour);
 }
 //----------------------- End of Make Line Function ---------------------------------------------------------------------------------------------
-
-
-// ----------------------------------- MAKE EXTENDED LINE FUNCTION -------------------------------------------------------------------------
-function LineExt(x1,y1,x2,y2, ext1,ext2,name, colour) {			//	extension is specified in pixels for function (and so may require converting before use)
-
-	grad = ( y2-y1 ) / (x2 - x1);
-
-	angle = atan(grad);
-
-	if(x2-x1<0) {
-	ext1x = x1+(ext1*cos(angle));
-	ext1y = y1+(ext1*sin(angle));
-	ext2x = x2-(ext2*cos(angle));
-	ext2y = y2-(ext2*sin(angle));
-	} else {
-	ext1x = x1-(ext1*cos(angle));
-	ext1y = y1-(ext1*sin(angle));
-	ext2x = x2+(ext2*cos(angle));
-	ext2y = y2+(ext2*sin(angle));
-	}
-
-	makeLine(ext1x,ext1y, ext2x, ext2y);					//	Make line between specified points with specified name and colour
-	roiManager("Add");
-	roiManager("Select",roiManager("count")-1);
-	roiManager("Rename", name);
-	roiManager("Set Color", colour);
-
-}
-//----------------------- End of Make Extended Line Function ---------------------------------------------------------------------------------------------
 
 
 // ----------------------------------- FIND EDGE FUNCTION -------------------------------------------------------------------------
@@ -778,36 +955,8 @@ function ArrayPos(a, value) {				//	'a' is the array to be checked, value is the
 	}
 // ----------------------------------End of Function ArrayPos ------------------------------------------------------------------------------------------
 
-//-------------------------------------- Function closeWindows -----------------------------------------------
 
-function closeWindows() {
-// closes all non-image windows except log window
-
-	list = getList("window.titles"); 		//	closes all non-image windows
-	    for (i=0; i<list.length; i++) { 
-
-		wName = list[i]; 
-		if (wName != "Log") {
-		    	selectWindow(wName); 
-			run("Close"); 
-		}
-	    } 
-
-}
-//-------------------------------------- End of Function closeWindows -----------------------------------------------
-
-//-------------------------------------- Function closeImages -----------------------------------------------
-
-function closeImages() {
-
-	while (nImages>0) { 			//	closes all open images
-	    selectImage(nImages); 
-	    close(); 
-	}  
-}
-
-//-------------------------------------- End of Function closeImages -----------------------------------------------
 
 // 	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -	//
-//				END OF LINAC FIELD SIZE							//
+//				END OF GULMAY FIELD SIZE & UNIFORMITY					//
 // 	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -	//

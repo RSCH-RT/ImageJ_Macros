@@ -1,6 +1,7 @@
 // -------------------------------------------------------------------------------------------------------------------------------------------
-//  Sarah Bailey 17 Dec 2013  - option to invert images if background is dark added by Matt Bolt 29 Aug 2014
- 
+//  Initial macro by: Sarah Bailey 17 Dec 2013  - option to invert images if background is dark added by Matt Bolt 29 Aug 2014
+//
+//  Revision 1.2 by JP - CU calibration applied to images prior to analysis 
 // -------------------------------------------------------------------------------------------------------------------------------------------
 //	Results X,Y display rather than North South
 //	At Coll 90, North (G) = X2, South (T) = X1, East (B) = Y1, West (A) = Y2
@@ -29,8 +30,8 @@ var myLen;
 // -------------------------------------------------------------------------------------------------------------------------------------------
 macro "AssymAnalysis" {
 
-version = "1.1";
-update_date = "23 December 2016 by MB";
+version = "1.2";
+update_date = "04 April 2017 by JP";
 
 	requires("1.47p");
 	myLinac = getArgument() ;
@@ -63,9 +64,9 @@ update_date = "23 December 2016 by MB";
 
 	myLinac = Dialog.getChoice();
 
-   myDirectory = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\"+myLinac+"\\ ";
-   call("ij.io.OpenDialog.setDefaultDirectory", myDirectory);
-   call("ij.plugin.frame.Editor.setDefaultDirectory", myDirectory);
+   	myDirectory = "G:\\Shared\\Oncology\\Physics\\Linac Field Analysis\\"+myLinac+"\\ ";
+   	call("ij.io.OpenDialog.setDefaultDirectory", myDirectory);
+   	call("ij.plugin.frame.Editor.setDefaultDirectory", myDirectory);
 
 	print(myDirectory);
 
@@ -74,7 +75,7 @@ update_date = "23 December 2016 by MB";
 	setBatchMode(true);
 
 	if (list.length != 4) {
-	        exit("Oops, only 4 images can be analysed! ");
+	         exit("WARNING: Only 4 image files may exist in the selected folder (there are currently "+list.length+"). Please make this so and re-run macro.");
 	}
 
 // removes any previous calibration - affects the X-ray field results
@@ -82,9 +83,15 @@ update_date = "23 December 2016 by MB";
 	myCF = 0.039;
 
 	for (k=0; k<list.length; k++) {
+		showProgress(k/3);
+
 		open(myFolder+list[k]);
 	   	myID = getImageID(); 	  
 		strName=getTitle(); 			// image name of newscaled image
+		
+		run("32-bit");
+		ConvertPVtoCU(myID);
+		
 
 		// extract DICOM Image data:
 		intEnergy = parseInt(getInfo("0018,0060")) / 1000;
@@ -112,6 +119,7 @@ update_date = "23 December 2016 by MB";
 
 		arrayImageID = Array.concat(arrayImageID, myID);
 		arrayImageName = Array.concat(arrayImageName, strName);
+		
 	}
 
 	// make sure we have current image's width and height
@@ -123,7 +131,7 @@ update_date = "23 December 2016 by MB";
 // call function combineImages();
 
 	combineImages();
-
+	
 
 // *** This part to position the mean ROIs has been adapted as LA6 has a 40x40cm imager (1190px) and so the positions of the 10x10 feilds varies.
 // *** The positoins has of the ROIs for all imageers has been slightly adjusted to make them more central.
@@ -158,35 +166,22 @@ update_date = "23 December 2016 by MB";
 
 
 	setBatchMode("exit & display");	// displays all open images	// need to show image for user to amke decision
-
-	Dialog.create("Invert?");
-		if (myLinac == "Red-A" || myLinac == "Red-B" || myLinac == "LA6") {
-		Dialog.addCheckbox("If irradiated area is white then tick box",true);	// set defaults based on which linacis selected to minimise user input
-		} else {
-		Dialog.addCheckbox("If irradiated area is white then tick box",false);
-		}
-	Dialog.show();
-
-	irradWhite = Dialog.getCheckbox();
-
-	if (irradWhite == true) {	// inverts image if ticked.
-		run("Invert");
-	}
-
+	
+	
 // ********************************************************************************************************************************************************
 
-	getStatistics(area, mean, min, max, std, histogram);	
-	maxPixValue = max;
+	////getStatistics(area, mean, min, max, std, histogram);	
+	////maxPixValue = max;
 	meanImage = findMean(arrayImageID[5]);
-
+	
 	centreX = pWidth / 2;
 	centreY = pHeight / 2;
 
-	xArr = newArray(4);
-	yArr = newArray(4);
+	////xArr = newArray(4);
+	////yArr = newArray(4);
 
-	absArrayX= newArray(4);
-	absArrayY = newArray(4);
+	////absArrayX= newArray(4);
+	////absArrayY = newArray(4);
 
 	// Intersection North, South, East, West (up/down as view screen) horizontal: Y = constant 
 	// Coll = 90, North (G) = X2, South (T) = X1, East (B) = Y1, West (A) = Y2
@@ -195,59 +190,29 @@ update_date = "23 December 2016 by MB";
 	// getOverlap fills xArr and yArr arrays
 
 	myLen = 25; 		//length of overlap line = 2 x myLen - also used in getOverlap function
+	
+	resN = getOverlap(centreX-myLen, centreY-100, centreX+myLen, centreY-100, meanImage, "X", 0); // N, X2	
+	resS =getOverlap(centreX-myLen, centreY+100, centreX+myLen, centreY+100, meanImage, "X", 2);  // S, X1
+	resE = getOverlap(centreX+100, centreY-myLen, centreX+100, centreY+myLen, meanImage, "Y", 0); // E, Y1	
+	resW = getOverlap(centreX-100, centreY-myLen, centreX-100, centreY+myLen, meanImage, "Y", 2); // W, Y2
 
-	getOverlap(centreX-myLen, centreY-100, centreX+myLen, centreY-100, meanImage, "X", 0); // N, X2	
-	getOverlap(centreX-myLen, centreY+100, centreX+myLen, centreY+100, meanImage, "X", 2);  // S, X1
-
-	getOverlap(centreX+100, centreY-myLen, centreX+100, centreY+myLen, meanImage, "Y", 0); // E, Y1
-	getOverlap(centreX-100, centreY-myLen, centreX-100, centreY+myLen, meanImage, "Y", 2); // W, Y2
-
-	// need to create a new array with all abs values, then get max difference in low and high, for X and Y
-	// get position in array of max - this is same position of the original array
-	// result is max X and max Y from original arrays
 		
-	for (i=0; i<4; i++){
-	   absArrayX[i] = abs(xArr[i]-100);
-	   absArrayY[i] = abs(yArr[i]-100);
-	}
-
-	Array.getStatistics(absArrayX, min, max);
-	maxX = max;
-
-	Array.getStatistics(absArrayY, min, max);
-	maxY = max;
-
-	resultX = 0;
-	resultY = 0;
-
-	for (i=0; i<4; i++){
-		if (absArrayX[i]  == maxX) {
-			resultX = xArr[i];			
-		}
-		if (absArrayY[i]  == maxY) {
-			resultY = yArr[i];			
-		}
-	}
 	print("North, South East, West refer to image orientation as you look at the screen");
 	print("For Coll 90:");
-	print("Y (T): High "+d2s(xArr[3], 1)+"%, Low "+d2s(xArr[2],1)+"%");
-	print("Y (G): High "+d2s(xArr[1], 1)+"%, Low "+d2s(xArr[0],1)+"%");
-	print("X (B): High "+d2s(yArr[1], 1)+"%, Low "+d2s(yArr[0],1)+"%");
-	print("X (A): High "+d2s(yArr[3], 1)+"%, Low "+d2s(yArr[2],1)+"%");
+	print("Y (T): "+resS+"%");
+	print("Y (G): "+resN+"%");
+	print("X (B): "+resE+"%");
+	print("X (A): "+resW+"%");
 	print("\n");	
-	print("Result Y: "+d2s(resultX,1)+"%");
-	print("Result X: "+d2s(resultY,1)+"%");
+
+	print("Result Y: "+CalcMax(resN,resS)+"%");
+	print("Result X: "+CalcMax(resE,resW)+"%");
 	print("\n");	
 	print("Tolerance: 70%-130%");	
 	print("-------------------------------------------------------------");
 
 //	close all temp images
-
-	for (i=1; i<5; i++){
-		selectImage(arrayImageID[i]);  
-		run("Close"); 
-	}
-
+	
 	setBatchMode("exit & display");	// displays all open images - hopefully, just the resultant image
 	saveResults();
 	selectWindow("Log");
@@ -283,69 +248,49 @@ function combineImages() {
 
 	arrayImageID = Array.concat(arrayImageID, imageR);
 	arrayImageName = Array.concat(arrayImageName, "Combined");
+
+	selectImage(arrayImageID[1]);close();
+	selectImage(arrayImageID[2]);close();
+	selectImage(arrayImageID[3]);close();
+	selectImage(arrayImageID[4]);close();
+	
+	
 }
 // end function combineImages
 
 
 //  **************************** FUNCTION GET OVERLAP ******************************************
-function getOverlap(x1, y1, x2, y2, meanImage, isX, arrayPos){
-
-	// create mini profiles used to measure overlap - based on central image position
-	// profile length +/- 25 pixels each side (for 1024 image)
-	// need to look for both under and over dose
-
-	pAvg = maxPixValue - meanImage;
-
-	selectImage(arrayImageID[5]);  		// make sure we still have the correct image
+function getOverlap(x1, y1, x2, y2, imMean, isX, arrayPos){
 	
 	makeLine(x1, y1, x2, y2);
 	run("Line Width...", "line=5");		//average across 5 pixels when use line size of 5
-
 	myProfile = getProfile();		
 	Array.getStatistics(myProfile,min, max);
-	meanMin = min;
-	meanMax = max;
-
+	
+	//meanMin = min;
+	//meanMax = max;
 	endAt = (2* myLen) -1;
+
+	// Average profile
+	avProfile = newArray(lengthOf(myProfile));
 	
-	// we want an average of 3 pixels - one each side of the min or max along profile line
-	// so we need to find the position of the min and max in profile
+	// copy array before averaging as the first and last elements cant be averaged, which is likely to cause issues with analysis
+	for(i=0;i<lengthOf(myProfile);i++) avProfile[i]=myProfile[i];
 
-	pMin = 0;
-	pMax = 0;
+	for(i=1;i<lengthOf(myProfile)-2;i++) {
+		avProfile[i] = (myProfile[i-1] + myProfile[i] + myProfile[i+1])/3;
+	}
+
+	maxDiffToMean=0;
+	for (i=1; i<lengthOf(myProfile)-2; i++) {
+		if (abs(avProfile[i]-imMean) > maxDiffToMean) {			
+   	    		maxDiffToMean = abs(avProfile[i]-imMean);
+			maxDevIndex=i;
+		}
+	}
 	
-	for (i=0; i<endAt; i++) {
-	    if (myProfile[i] == meanMin) 
-   	        pMin = i;  // already passed it so use previous i value
-	}
-
-	for (i=0; i<endAt; i++) {
-	    if (myProfile[i] == meanMax) 
-   	        pMax = i;  // already passed it so use previous i value
-	}
-
-	// now we calc the mean
-
-	if (pMin > 1) {
-		meanMin = (myProfile[pMin -1]+myProfile[pMin]+myProfile[pMin +1])/3;
-	}
-
-	if (pMax >1) {
-		meanMax = (myProfile[pMax -1]+myProfile[pMax]+myProfile[pMax +1])/3;
-	}
-
-	pHigh = (maxPixValue - meanMin)/pAvg;
-	pLow = (maxPixValue - meanMax)/pAvg;	
-
-	// store results in an array so we can read them later
-	if (isX=="X") {
-		xArr[arrayPos]= 100*pLow;
-		xArr[arrayPos+1]= 100*pHigh;
-	}
-
-	if (isX=="Y") {
-		yArr[arrayPos] = 100*pLow;
-		yArr[arrayPos+1] = 100*pHigh;
+	normalisedMaxDiff = 100*(avProfile[maxDevIndex]/imMean);	
+	return Round(normalisedMaxDiff,1);
 	}
 
 } // End of Function
@@ -439,7 +384,7 @@ function saveResults(){
 	}
 	setLocation(screenWidth()-50,screenHeight()-50);			//	Puts window out of sight
 	print(f,contents);
-	saveAs("Text");
+	saveAs("Text",myFolder+title1);
 	run("Close");	
 
 } // End of Function
@@ -453,3 +398,26 @@ function getMyDate() {
 	return strDate;
 
   } // End Function
+
+
+
+// ************************** FUNCTION CONVERT PV TO CU ***************************************
+function ConvertPVtoCU(id) {
+	selectImage(id);
+	intercept = getInfo("0028,1052"); // get the slope and intercept values from the DICOM file.
+	slope = getInfo("0028,1053");
+	run("Multiply...", "value=&slope"); // apply the slope and intercept to the pixel values.
+	run("Add...", "value=&intercept"); // slope should be applied first to ensure correctly applying linear scaling
+}
+
+function CalcMax(a,b) {
+	if(abs(a-100)>=abs(b-100)) {
+		return a;
+	} else {
+		return b;
+	}
+}
+
+function Round(x,n) {
+	return round(x*pow(10,n))/pow(10,n);
+}
