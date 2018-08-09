@@ -34,13 +34,19 @@ macro "Papillon_Field_Analysis"{
 
 //// *** Version number and date last updated. To be used within the code *** /////
 
-version = "1.2";
-update_date = "23 December 2016 by MB";
+version = "1.3";
+update_date = "09 August 2018 by MB";
 
 /// V1.1 Updated to find applicator centre using fitted circle ROI. Altered display of results for simple extraction in QATrack. Profile plots inverted by setting y limits.
+/// V1.2 Updated version to coincide with relase of other macros.
+/// V1.3 Updated to include Applicator ID selection and to address error on 'restart of macro' (closes open plot windows on restart).
+
 
 ///////	0	//////////	Setup ImageJ as required & get image info	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	do {
+		
+	close("*Plot"); // closes any open window which has a title which ends with "Plot".
+		
 	requires("1.47p");
 	run("Profile Plot Options...", "width=450 height=300 interpolate draw sub-pixel");
 	run("Set Measurements...", "area mean standard min centroid center bounding display redirect=None decimal=3");
@@ -146,6 +152,7 @@ update_date = "23 December 2016 by MB";
 
 	AppChoices = newArray("22 mm","25 mm","30 mm","Physics");		//	These can be given names as this array is only used for selection purposes
 									//	Physics applicator should be identical to 30mm applicator
+	AppIDs = newArray("A","B","C","D","E","Other");
 	//FieldSizeChoices = newArray("22.6","25.3","30.4","30.5");		//	relate horiz & vert field size to app selected - these are the standard figures
 	// Updated values following FF replacemenet Nov 2015
 	FieldSizeChoices = newArray("22.8","25.7","30.7","30.7");
@@ -167,7 +174,8 @@ update_date = "23 December 2016 by MB";
 	Dialog.addChoice("Year", YearChoices, year);
 	Dialog.addMessage("--- Exposure Details ---");
 	Dialog.addChoice("Scanner", ScannerChoices,ScannerChoices[1]);
-	Dialog.addChoice("Applicator", AppChoices);
+	Dialog.addChoice("Applicator size", AppChoices);
+	Dialog.addChoice("Applicator ID", AppIDs);
 	Dialog.addCheckbox("Uniformity Analysis", true);
 	Dialog.show();
 
@@ -177,6 +185,7 @@ update_date = "23 December 2016 by MB";
 
 	ScannerSelected = Dialog.getChoice();
 	AppSelected = Dialog.getChoice();
+	AppIDSelected = Dialog.getChoice();
 	UniformitySelected = Dialog.getCheckbox();				//	returns true or false to allow uniformity to me measured or not
 
 	DateSelected = DaySelected + "-" + MonthSelected + "-" + YearSelected;
@@ -228,7 +237,8 @@ update_date = "23 December 2016 by MB";
 	print("Analysis Date:   \t" +TimeString);
 	print("\n");
 	print("Scanner:   \t" + ScannerModelSelected);
-	print("Applicator:   \t" + AppSelected);
+	print("Applicator Size:   \t" + AppSelected);
+	print("Applicator ID:   \t" + AppIDSelected);
 	print("Uniformity Analysed:   \t" + UniformityPerformed);
 	
 
