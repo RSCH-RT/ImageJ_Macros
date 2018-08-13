@@ -47,7 +47,7 @@ var strDateImage;
 
 macro "Find Points" {
 
-version = "1.2";
+version = "1.3";
 update_date = "23 December 2016 by MB";
 
 // *************** STEP 1 ***************

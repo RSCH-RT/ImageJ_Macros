@@ -26,7 +26,7 @@ macro "Gulmay_Field_Analysis"{
 
 // + + + + + + + + + + + + + This whole macro is enclosed in a 'do... while' loop to allow analysis to be restarted if box at end is ticked i.e. if RepeatAnalysis = true + + + + + + + + + + + + + + + +
 
-version = "1.2";
+version = "1.3";
 update_date = "23 December 2016 by MB";
 
 ///////	0	//////////	Setup ImageJ as required & get image info	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
