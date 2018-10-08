@@ -150,7 +150,7 @@ update_date = "09 August 2018 by MB";
 
 ///////	2	//////////	Field Details Selected	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	AppChoices = newArray("22 mm","25 mm","30 mm","Physics");		//	These can be given names as this array is only used for selection purposes
+	AppChoices = newArray("22mm","25mm","30mm","Physics");		//	These can be given names as this array is only used for selection purposes
 									//	Physics applicator should be identical to 30mm applicator
 	AppIDs = newArray("A","B","C","D","E","Other");
 	//FieldSizeChoices = newArray("22.6","25.3","30.4","30.5");		//	relate horiz & vert field size to app selected - these are the standard figures
