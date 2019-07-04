@@ -45,7 +45,7 @@ update_date = "23 December 2016 by MB";
 	Dialog.addMessage("Click OK to start");
 	Dialog.show()
 
-   myDirectory = "G:\\Shared\\Oncology\\Physics\\RTPhysics\\EBRT Dosimetry\\XstrahlGulmay Commissioning 2011 to 12\\Field Analysis QC";
+   myDirectory = "G:\\Shared\\Oncology\\Physics\\RTPhysics\\EBRT Dosimetry\\Xstrahl 2013 onwards\\Field Analysis QC";
    call("ij.io.OpenDialog.setDefaultDirectory", myDirectory);
    call("ij.plugin.frame.Editor.setDefaultDirectory", myDirectory);
 
