@@ -34,12 +34,13 @@ macro "Papillon_Field_Analysis"{
 
 //// *** Version number and date last updated. To be used within the code *** /////
 
-version = "1.3";
-update_date = "09 August 2018 by MB";
+version = "1.4";
+update_date = "08 January 2020 by MB";
 
 /// V1.1 Updated to find applicator centre using fitted circle ROI. Altered display of results for simple extraction in QATrack. Profile plots inverted by setting y limits.
 /// V1.2 Updated version to coincide with relase of other macros.
 /// V1.3 Updated to include Applicator ID selection and to address error on 'restart of macro' (closes open plot windows on restart).
+/// V1.4 Updated to get dpi from TIFF image rather than relying on user scanning entire ROI of scanner.
 
 
 ///////	0	//////////	Setup ImageJ as required & get image info	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +90,20 @@ update_date = "09 August 2018 by MB";
 	name = getTitle;									//	gets image title and removes file extension for saving purposes
 	dotIndex = indexOf(name, ".");
 	SaveName = substring(name, 0, dotIndex);
-	run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel");
+	
+	// *** want to get the pixel scales and use these to determine field size***
+	getPixelSize(unit, pw, ph, pd); // values returned in inches
+	
+	dpiDetectedW = 1/pw;
+	dpiDetectedH = 1/ph;
+	
+	if (dpiDetectedW!=96 || dpiDetectedH!=96) {
+		showMessageWithCancel("The DPI is not the standard 96 as detailed in the protocol. It is detected as (" + dpiDetectedW + ","+dpiDetectedH+"). Press cancel to exit macro, or OK to continue.");
+	}
+	
+	print(dpiDetectedW,dpiDetectedH);
+	
+	run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel"); // we haev the dpi and can use this to calc distances. Setting scale is required for current functions
 
 	MonthNames = newArray("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");		//	get current date and display in desired format
 	DayNames = newArray("Sun", "Mon","Tue","Wed","Thu","Fri","Sat");
@@ -101,19 +115,28 @@ update_date = "09 August 2018 by MB";
 
 // added to automate rotation if scanner settings not correct.
 	
+	// Auto image rotation removed as scaling change to be based on pixel size (from input dpi) rather than image size so may not be 'portrait' dimensions.
 	// 	to check if image has portrait orientation as required
-	if (ImageWidthPx > ImageHeightPx) {
-		//waitForUser("Rotate?", "Image will rotate 90 degrees clockwise when you click OK");	//let user know about rotation
-		run("Rotate 90 Degrees Left");
-		ImageWidthPx = getWidth();			//returns new image width/height in pixels after rotation for calcs
-		ImageHeightPx = getHeight();
-	}
+	//if (ImageWidthPx > ImageHeightPx) {
+	//	//waitForUser("Rotate?", "Image will rotate 90 degrees clockwise when you click OK");	//let user know about rotation
+	//	run("Rotate 90 Degrees Left");
+	//	ImageWidthPx = getWidth();			//returns new image width/height in pixels after rotation for calcs
+	//	ImageHeightPx = getHeight();
+	//}
 
 	ImageWidthA4mm = 215.9;				//	known regular scanner image width in mm (from scanner settings)
 	ImageHeightA4mm = 297.2;
 
 	ImageWidthA3mm = 309.9;				//	known large scanner image width in mm (from scanner settings)
 	ImageHeightA3mm = 436.9;
+
+	//pdmm = pd*inchtomm;
+	//pwmm = pw*inchtomm;
+	//phmm = ph*inchtomm;
+
+	//print(pdmm);
+	//print(pwmm);
+	//print(phmm);
 
 ///////	1	//////////	Tolerance Levels & Standard Figures	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -177,6 +200,8 @@ update_date = "09 August 2018 by MB";
 	Dialog.addChoice("Applicator size", AppChoices);
 	Dialog.addChoice("Applicator ID", AppIDs);
 	Dialog.addCheckbox("Uniformity Analysis", true);
+	Dialog.addNumber("Scan DPI W", dpiDetectedW);
+	Dialog.addNumber("Scan DPI H", dpiDetectedH);
 	Dialog.show();
 
 	DaySelected = Dialog.getChoice();
@@ -187,7 +212,13 @@ update_date = "09 August 2018 by MB";
 	AppSelected = Dialog.getChoice();
 	AppIDSelected = Dialog.getChoice();
 	UniformitySelected = Dialog.getCheckbox();				//	returns true or false to allow uniformity to me measured or not
-
+	
+	dpiW = Dialog.getNumber(); 						//get the dpi just in case the user changes it
+	dpiH = Dialog.getNumber();
+	if (dpiW != dpiDetectedW || dpiH != dpiDetectedH) {
+		showMessageWithCancel("The detected and input DPI does not match, this may lead to incorrect results");
+	}
+	
 	DateSelected = DaySelected + "-" + MonthSelected + "-" + YearSelected;
 
 	AppSelectedPos = ArrayPos(AppChoices,AppSelected);
@@ -201,19 +232,25 @@ update_date = "09 August 2018 by MB";
 	UniformityERatioSelected = UniformityERatio[AppSelectedPos];		//	Uniformity Ratio East
 	UniformityWRatioSelected = UniformityWRatio[AppSelectedPos];		//	Uniformity Ratio West
 
+	// setting the size based on scanner is not required a the dpi is used
 	if(ScannerSelected == "11000XL Pro") {
-		ImageWidthSelectedmm = ImageWidthA3mm;
-		ImageHeightSelectedmm = ImageHeightA3mm;
+	//	ImageWidthSelectedmm = ImageWidthA3mm;
+	//	ImageHeightSelectedmm = ImageHeightA3mm;
 		ScannerModelSelected = "Epson Expression 11000XL Pro";
-		run("In [+]");						//	Zoom into image
+	//	run("In [+]");						//	Zoom into image
 		} else {
-		ImageWidthSelectedmm = ImageWidthA4mm;
-		ImageHeightSelectedmm = ImageHeightA4mm;
+	//	ImageWidthSelectedmm = ImageWidthA4mm;
+	//	ImageHeightSelectedmm = ImageHeightA4mm;
 		ScannerModelSelected = "Epsom Perfection V750 Pro";
 		}
-
-	EWscale = ImageWidthPx / ImageWidthSelectedmm;		//	gives conversion factor from px to mm from scanner selected
-	NSscale = ImageHeightPx / ImageHeightSelectedmm;
+	//	
+	//EWscale = ImageWidthPx / ImageWidthSelectedmm;		//	gives conversion factor from px to mm from scanner selected
+	//NSscale = ImageHeightPx / ImageHeightSelectedmm;
+	
+	// use dpi to set image size rather than setting the scale as was done previously using the known image size of each scanner
+	inchtomm = 25.4;
+	EWscale = dpiW / inchtomm;
+	NSscale = dpiH / inchtomm;	
 
 	fieldEW = FieldSizeSelected;				//	Field size in mm for calcs
 	fieldNS = FieldSizeSelected;
@@ -240,6 +277,8 @@ update_date = "09 August 2018 by MB";
 	print("Applicator Size:   \t" + AppSelected);
 	print("Applicator ID:   \t" + AppIDSelected);
 	print("Uniformity Analysed:   \t" + UniformityPerformed);
+	print("DPI W:	\t" + dpiW);
+	print("DPI H:	\t" + dpiH);
 	
 
 //	print("Horizontal Scale (pix/mm):\t" + EWscale);
