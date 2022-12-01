@@ -13,7 +13,8 @@
 - Field Size and Uniformity
 
 ### [Brachytherapy](Brachytherapy/)
-- Papillon Field Size & Uniformity
+- Papillon50 Field Size & Uniformity
+- Papillon+ Field Size & Uniformity
 
 ### [Other](Other/)
 - Papillon Audit Macro
